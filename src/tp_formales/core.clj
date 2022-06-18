@@ -479,8 +479,20 @@
 ; (*error* too-few-args)
 
 
-(defn revisar-lae
-  "Devuelve el primer elemento que es un mensaje de error. Si no hay ninguno, devuelve nil.")
+(defn isNotNil? [elem]
+  (if (nil? elem) false true))
+
+(defn devolverPrimeroSiExiste [lista]
+  (if (> (count lista) 0) (first lista) nil))
+
+(defn esError [lista]
+  (cond
+    ((list? lista) and (> (count lista) 0) and (= '*error* (first lista))) true
+    :elese nil)
+
+  (defn revisar-lae [matriz]
+  ;; "Devuelve el primer elemento que es un mensaje de error. Si no hay ninguno, devuelve nil."
+    (devolverPrimeroSiExiste (filter isNotNil? (map esError matriz))))
 
 
 ; user=> (actualizar-amb '(a 1 b 2 c 3) 'd 4)
@@ -493,8 +505,8 @@
 ; (b 7)
 
 
-(defn actualizar-amb
-  "Devuelve un ambiente actualizado con una clave (nombre de la variable o funcion) y su valor. 
+  (defn actualizar-amb
+    "Devuelve un ambiente actualizado con una clave (nombre de la variable o funcion) y su valor. 
   Si el valor es un error, el ambiente no se modifica. De lo contrario, se le carga o reemplaza el valor.")
 
 
@@ -504,13 +516,13 @@
 ; (*error* unbound-symbol f)
 
 
-(defn buscar [clave lista]
+  (defn buscar [clave lista]
   ;; "Busca una clave en un ambiente (una lista con claves en las posiciones impares [1, 3, 5...] y valores en las pares [2, 4, 6...]
   ;;  y devuelve el valor asociado. Devuelve un mensaje de error si no la encuentra."
-  (cond
-    (not (list? lista)) (list '*error* 'unbound-symbol clave)
-    (= clave (first lista)) (second lista)
-    :else (buscar clave (rest (rest lista)))))
+    (cond
+      (not (list? lista)) (list '*error* 'unbound-symbol clave)
+      (= clave (first lista)) (second lista)
+      :else (buscar clave (rest (rest lista)))))
 
 ; user=> (fnc-append '( (1 2) ))
 ; (*error* too-few-args)
@@ -530,8 +542,15 @@
 ; nil
 ; user=> (fnc-append '(() ()))
 ; nil
-(defn fnc-append
-  "Devuelve el resultado de fusionar 2 sublistas.")
+  (defn fnc-append [matriz] ;; LOS ULTIMOS CASOS NO SE SI FUNCIONAN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ;; "Devuelve el resultado de fusionar 2 sublistas."
+    (cond
+      (< (count matriz) 2) (list '*error* 'too-few-args)
+      (> (count matriz) 2) (list '*error* 'too-many-args)
+      (not (list? (first matriz))) (list '*error* 'list expected (first matriz))
+      (not (list? (second matriz))) (list '*error* 'list expected (second matriz))
+      :else (append (first matriz) (second matriz))))
+  )
 
 
 ; user=> (fnc-env () '(a 1 b 2) '(c 3 d 4))
@@ -540,8 +559,14 @@
 ; (*error* too-many-args)
 
 
-(defn fnc-env
-  "Devuelve la fusion de los ambientes global y local.")
+  (defn fnc-env [ambiente1 ambiente2] ;; A CHECKEAR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ;; "Devuelve la fusion de los ambientes global y local."
+    (cond
+      (not (list? ambiente1)) (list '*error* 'list expected ambiente1)
+      (not (list? ambiente2)) (list '*error* 'list expected ambiente2)
+      :else (append ambiente1 ambiente2)   
+    )
+  )
 
 
 ; user=> (fnc-equal '(1 1))
@@ -566,8 +591,8 @@
 ; (*error* too-many-args)
 
 
-(defn fnc-equal
-  "Compara 2 elementos. Si son iguales, devuelve t. Si no, nil.")
+  (defn fnc-equal
+    "Compara 2 elementos. Si son iguales, devuelve t. Si no, nil.")
 
 
 ; user=> (fnc-read ())
@@ -598,8 +623,8 @@
 ; (*error* not-implemented)
 
 
-(defn fnc-read
-  "Devuelve la lectura de un elemento de TLC-LISP desde la terminal/consola.")
+  (defn fnc-read
+    "Devuelve la lectura de un elemento de TLC-LISP desde la terminal/consola.")
 
 
 ; user=> (fnc-terpri ())
@@ -611,11 +636,11 @@
 ; (*error* not-implemented)
 
 
-(defn fnc-terpri [lista] ;; REVISARRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
+  (defn fnc-terpri [lista] ;; REVISARRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
   ;; "Imprime un salto de línea y devuelve nil."
-  (cond
-    ((list? lista) and (> (count lista) 0)) (list '*error* 'not-implemented)
-    :else (println ("\n") nil)))
+    (cond
+      ((list? lista) and (> (count lista) 0)) (list '*error* 'not-implemented)
+      :else (println ("\n") nil)))
 
 
 ; user=> (fnc-add ())
@@ -636,15 +661,15 @@
 ; (*error* number-expected A)
 
 
-(defn fnc-add [lista]
+  (defn fnc-add [lista]
   ;; "Suma los elementos de una lista. Minimo 2 elementos."
-  (cond
-    (number? (first lista)) (cond
-                              (<= (count lista) 1) (list '*error* 'too-few-args)
-                              (= (count lista) 2) (cond 
+    (cond
+      (number? (first lista)) (cond
+                                (<= (count lista) 1) (list '*error* 'too-few-args)
+                                (= (count lista) 2) (cond
                                                       (number? (second lista)) (+ (first lista) (second lista))
                                                       :else (list '*error* 'number-expected (second lista))))
-                              :else (+ (first lista) (fnc-add (rest lista))))
+      :else (+ (first lista) (fnc-add (rest lista))))
     :else (list '*error* 'number-expected (first lista))))
 
 
@@ -666,8 +691,17 @@
 ; (*error* number-expected A)
 
 
-(defn fnc-sub
-  "Resta los elementos de un lista. Minimo 1 elemento.")
+(defn fnc-sub [lista] ;; PROBAR CON REDUCE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ;; "Resta los elementos de un lista. Minimo 1 elemento."
+  (cond
+    (number? (first lista)) (cond
+                              (< (count lista) 1) (list '*error* 'too-few-args)
+                              (= (count lista) 1) (- (first lista))
+                              (= (count lista) 2) (cond
+                                                    (number? (second lista)) (- (first lista) (second lista))
+                                                    :else (list '*error* 'number-expected (second lista))))
+    :else (- (first lista) (fnc-sub (rest lista))))
+  :else (list '*error* 'number-expected (first lista)))
 
 
 ; user=> (fnc-lt ())
@@ -688,8 +722,19 @@
 ; (*error* too-many-args)
 
 
-(defn fnc-lt
-  "Devuelve t si el primer numero es menor que el segundo; si no, nil.")
+(defn fnc-lt [lista]
+  ;; "Devuelve t si el primer numero es menor que el segundo; si no, nil."
+  (cond
+    (< (count lista) 2) (list '*error* 'too-few-args)
+    (> (count lista) 2) (list '*error* 'too-many-args)
+    (number? (first lista)) (cond
+                                (number? (second lista)) (cond 
+                                                            (< (first lista) (second lista)) 't
+                                                            :else nil
+                                                         )
+                                :else (list '*error* 'number-expected (second lista)))
+    :else (list '*error* 'number-expected (first lista)))
+)
 
 
 ; user=> (fnc-gt ())
@@ -711,7 +756,18 @@
 
 
 (defn fnc-gt
-  "Devuelve t si el primer numero es mayor que el segundo; si no, nil.")
+  ;; "Devuelve t si el primer numero es mayor que el segundo; si no, nil."
+  (cond
+    (< (count lista) 2) (list '*error* 'too-few-args)
+    (> (count lista) 2) (list '*error* 'too-many-args)
+    (number? (first lista)) (cond
+                                (number? (second lista)) (cond 
+                                                            (> (first lista) (second lista)) 't
+                                                            :else nil
+                                                         )
+                                :else (list '*error* 'number-expected (second lista)))
+    :else (list '*error* 'number-expected (first lista)))
+)
 
 
 ; user=> (fnc-ge ())
@@ -733,7 +789,18 @@
 
 
 (defn fnc-ge
-  "Devuelve t si el primer numero es mayor o igual que el segundo; si no, nil.")
+  ;; "Devuelve t si el primer numero es mayor o igual que el segundo; si no, nil."
+  (cond
+    (< (count lista) 2) (list '*error* 'too-few-args)
+    (> (count lista) 2) (list '*error* 'too-many-args)
+    (number? (first lista)) (cond
+                                (number? (second lista)) (cond 
+                                                            (>= (first lista) (second lista)) 't
+                                                            :else nil
+                                                         )
+                                :else (list '*error* 'number-expected (second lista)))
+    :else (list '*error* 'number-expected (first lista)))
+)
 
 
 ; user=> (fnc-reverse ())
@@ -750,8 +817,12 @@
 ; (*error* too-many-args)
 
 
-(defn fnc-reverse
-  "Devuelve una lista con sus elementos en orden inverso.")
+(defn fnc-reverse [matriz]
+  ;; "Devuelve una lista con sus elementos en orden inverso."
+  (cond
+    (< (count matriz) 1) (list '*error* 'too-few-args)
+    (> (count matriz) 1) (list '*error* 'too-many-args)
+    :else (reverse (first matriz))))
 
 
 ; user=> (evaluar-escalar 32 '(v 1 w 3 x 6) '(x 5 y 11 z "hola"))
