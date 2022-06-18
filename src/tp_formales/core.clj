@@ -415,9 +415,17 @@
 ; false
 
 
-(defn igual?
+(defn igual? [elem1 elem2]
   ;; "Verifica la igualdad entre dos elementos al estilo de TLC-LISP (case-insensitive)."
+  (cond 
+    ((number? elem1) and (number? elem2)) (= elem1 elem2)
+    ((string? elem1) and (string? elem2)) (= elem1 elem2)
+    ((list? elem1) and (list? elem2)) (= (map clojure.string/lower-case elem1) (map clojure.string/lower-case elem2))
+    ((nil? elem1) and (nil? elem2)) true
+    ((simbol? elem1) and (simbol? elem2)) (= (clojure.string/lower-case elem1) (clojure.string/lower-case elem2))
+    :else false
   )
+)
 
 
 ; user=> (error? '(*error* too-few-args))
@@ -505,9 +513,23 @@
 ; (b 7)
 
 
-  (defn actualizar-amb
-    "Devuelve un ambiente actualizado con una clave (nombre de la variable o funcion) y su valor. 
-  Si el valor es un error, el ambiente no se modifica. De lo contrario, se le carga o reemplaza el valor.")
+  (defn reemplazarValor [lista clave valor]
+    (cond
+      (= (first lista) clave) (list clave valor)
+      :else (concat (list (first lista) (second lista)) (reemplazarValor (rest (rest lista)) clave valor))
+    )
+  )
+
+  (defn actualizar-amb [lista clave valor]
+    ;; "Devuelve un ambiente actualizado con una clave (nombre de la variable o funcion) y su valor. 
+    ;; Si el valor es un error, el ambiente no se modifica. De lo contrario, se le carga o reemplaza el valor."
+    (cond
+      (esError valor) lista
+      (= (count lista) 0) (list clave valor)    
+      (contains? lista clave) (reemplazarValor lista clave valor)
+      :else lista
+    )
+  )
 
 
 ; user=> (buscar 'c '(a 1 b 2 c 3 d 4 e 5))
