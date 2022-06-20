@@ -10,12 +10,12 @@
 (deftest controlar-aridad-mayor-test
   (testing "controlar aridad mayor"
     (is
-     (= (controlar-aridad '(1 2 3) 2) '('*error* 'too-many-arguments)))))
+     (= (controlar-aridad '(1 2 3) 2) (list '*error* 'too-many-args)))))
 
 (deftest controlar-aridad-menor-test
   (testing "controlar aridad menor"
     (is
-     (= (controlar-aridad '(1 2 3) 4) '('*error* 'too-few-args)))))
+     (= (controlar-aridad '(1 2 3) 4) (list '*error* 'too-few-args)))))
 
 (deftest igual?-numbers-equal-test
   (testing "controlar aridad igual"
@@ -55,7 +55,7 @@
 (deftest igual?-listas-equal-lower-upper-test
   (testing "Controlar lista iguales en lowerCase y upperCase"
     (is
-     (= (igual? '('a 'b 'c) '('A 'B 'C)) true))))
+     (= (igual? '(a b c) '(A B C)) true))))
 
 (deftest igual?-simbols-not-equal-lower-test
   (testing "Controlar listas diferentes en lowerCase y upperCase"
@@ -68,14 +68,14 @@
      (= (igual? nil nil) true))))
 
 (deftest igual?-empty-lists-equal-test
-(testing "Controlar listas vacias"
-  (is
-    (= (igual? '() '()) true))))
+  (testing "Controlar listas vacias"
+    (is
+     (= (igual? () ()) true))))
 
 (deftest igual?-empty-list-and-nil-equal-test
-(testing "Controlar nil y lista vacia"
-  (is
-    (= (igual? '() nil) false))))
+  (testing "Controlar nil y lista vacia"
+    (is
+      (= (igual? () nil) false))))
 
 (deftest igual?-nil1
   (testing "Controlar nil and 'NIL"
@@ -95,12 +95,12 @@
 (deftest igual?-nil4
   (testing "Controlar 'NIL con ()"
     (is
-      (= (igual? 'NIL '()) true))))
+      (= (igual? 'NIL ()) true))))
 
 (deftest igual?-nil5
   (testing "Controlar () con '(nil)"
     (is
-      (= (igual? '() '(nil)) false))))
+      (= (igual? () '(nil)) false))))
 
 
 (deftest igual?-string-lower
@@ -156,7 +156,7 @@
 (deftest error?-parentesis
   (testing "Controlar ()"
     (is
-      (= (error? '()) false))))
+      (= (error? ()) false))))
 
 (deftest error?-*error*
   (testing "Controlar '*error*"
@@ -201,28 +201,63 @@
 (deftest revisar-lae-nil
   (testing "Controlar nil"
     (is
-      (= (revisar-fnc nil) nil))))
+      (= (revisar-lae nil) nil))))
 
 
-(deftest revisar-fnc-lista-numeros
+(deftest revisar-lae-lista-numeros
   (testing "Controlar '(1 2 3)"
     (is
-      (= (revisar-fnc '(1 2 3)) nil))))
+      (= (revisar-lae '(1 2 3)) nil))))
 
 
 (deftest revisar-lae-parentesis
   (testing "Controlar lista vacia"
     (is
-      (= (revisar-fnc ()) nil))))
+      (= (revisar-lae ()) nil))))
 
 
-(deftest revisar-fnc-un-error
+(deftest revisar-lae-un-error
   (testing "Controlar '(1 (*error* too-few-args) 3)"
     (is
-      (= (revisar-lae '(1 (*error* too-few-args) 3)) '(*error too-few-args)))))
+      (= (revisar-lae '(1 (*error* too-few-args) 3)) '(*error* too-few-args)))))
 
 
 (deftest revisar-lae-varios-errores
   (testing "Controlar '(1 (*error* too-few-args) (*error* too-many-args) 3)"
     (is
       (= (revisar-lae '(1 (*error* too-few-args) (*error* too-many-args) 3)) '(*error* too-few-args)))))
+
+(deftest actualizar-amb-cargar
+  (testing "Controlar '(a 1 b 2 c 3) 'd 4"
+    (is
+      (= (actualizar-amb '(a 1 b 2 c 3) 'd 4) '(a 1 b 2 c 3 d 4)))))
+
+
+(deftest actualizar-amb-reemplazar
+  (testing "Controlar '(a 1 b 2 c 3) 'b 4"
+    (is
+      (= (actualizar-amb '(a 1 b 2 c 3) 'b 4) '(a 1 b 4 c 3)))))
+
+
+(deftest actualizar-amb-lista-error
+  (testing "Controlar '(a 1 b 2 c 3) 'b (list '*error* 'mal 'hecho)"
+    (is
+      (= (actualizar-amb '(a 1 b 2 c 3) 'b (list '*error* 'mal 'hecho)) '(a 1 b 2 c 3)))))
+
+
+(deftest actualizar-amb-lista-vacia
+  (testing "Controlar () 'b 7"
+    (is
+      (= (actualizar-amb () 'b 7) '(b 7)))))
+
+
+(deftest buscar-valor-que-esta
+  (testing "Controlar 'c '(a 1 b 2 c 3 d 4 e 5)"
+    (is
+      (= (buscar 'c '(a 1 b 2 c 3 d 4 e 5)) 3))))
+
+
+(deftest buscar-valor-que-no-esta
+  (testing "Controlar 'f '(a 1 b 2 c 3 d 4 e 5)"
+    (is
+      (= (buscar 'f '(a 1 b 2 c 3 d 4 e 5)) '(*error* unbound-symbol f)))))

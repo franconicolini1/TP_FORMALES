@@ -414,19 +414,26 @@
 ; user=> (igual? 'a "A")
 ; false
 
+(defn toLowerSiSePuede [s]
+  (cond
+    (or (string? s) (simple-symbol? s)) (clojure.string/lower-case s)
+    :else s
+  )
+)
+
 
 (defn igual? [elem1 elem2]
   ;; "Verifica la igualdad entre dos elementos al estilo de TLC-LISP (case-insensitive)."
   (cond
     (and (or (nil? elem1) (nil? elem2)) 
-         (or (and (simple-symbol? elem1) (= elem1 'NIL)) ((and (simple-symbol? elem2) (= elem2 'NIL))))
+         (or (and (simple-symbol? elem1) (= elem1 'NIL)) (and (simple-symbol? elem2) (= elem2 'NIL)))
     ) true
     (and (number? elem1) (number? elem2)) (= elem1 elem2)
     (and (string? elem1) (string? elem2)) (= elem1 elem2)
     (and (nil? elem1) (nil? elem2)) true
-    (and (list? elem1) (list? elem2)) (= (map clojure.string/lower-case elem1) (map clojure.string/lower-case elem2))
-    (or (and (and (list? elem1) (empty? elem1)) (= elem2 'NIL)) (and (and (list? elem2) (empty? elem2)) (= elem1 'NIL))) true
     (and (simple-symbol? elem1) (simple-symbol? elem2)) (= (clojure.string/lower-case elem1) (clojure.string/lower-case elem2))
+    (or (and (list? elem1) (empty? elem1) (= elem2 'NIL)) (and (list? elem2) (empty? elem2) (= elem1 'NIL))) true
+    (and (list? elem1) (list? elem2)) (= (map toLowerSiSePuede elem1) (map toLowerSiSePuede elem2))
     :else false))
 
 
@@ -455,7 +462,7 @@
   (cond
     (not (list? lista)) false
     (= (count lista) 0) false
-    (= '*error* (clojure.string/lower-case (first lista))) true
+    (or (= '*error* (clojure.string/lower-case (first lista))) (= "*error*" (clojure.string/lower-case (first lista)))) true
     :else false))
 
 
@@ -490,20 +497,23 @@
 ; (*error* too-few-args)
 
 
-(defn isNotNil? [elem]
-  (if (nil? elem) false true))
+  (defn isNotNil? [elem]
+    (if (nil? elem) false true))
 
-(defn devolverPrimeroSiExiste [lista]
-  (if (> (count lista) 0) (first lista) nil))
+  (defn devolverPrimeroSiExiste [lista]
+    (if (> (count lista) 0) (first lista) nil))
 
-(defn esError [lista]
-  (cond
-    (and (list? lista) (> (count lista) 0) (= '*error* (first lista))) true
-    :elese nil)
+  (defn esError-lae [lista]
+    (cond
+      (and (list? lista) (> (count lista) 0) (or (= '*error* (first lista)) (= "*error*" (first lista)))) (list (first lista) (second lista))
+      :else nil))
 
   (defn revisar-lae [matriz]
   ;; "Devuelve el primer elemento que es un mensaje de error. Si no hay ninguno, devuelve nil."
-    (devolverPrimeroSiExiste (filter isNotNil? (map esError matriz))))
+    (cond
+      (not (list? matriz)) nil
+      :else (devolverPrimeroSiExiste (filter isNotNil? (map esError-lae matriz))))
+    )
 
 
 ; user=> (actualizar-amb '(a 1 b 2 c 3) 'd 4)
@@ -515,20 +525,27 @@
 ; user=> (actualizar-amb () 'b 7)
 ; (b 7)
 
+  (defn esError-amb [lista]
+    (cond
+      (and (list? lista) (> (count lista) 0) (or (= '*error* (first lista)) (= "*error*" (first lista)))) true
+      :else nil))
+
+  (defn index-of [e coll] (first (keep-indexed #(if (= e %2) %1) coll)))
 
   (defn reemplazarValor [lista clave valor]
     (cond
-      (= (first lista) clave) (list clave valor)
+      (< (count lista) 2) lista
+      (= (first lista) clave) (concat (list clave valor) (reemplazarValor (rest (rest lista)) clave valor))
       :else (concat (list (first lista) (second lista)) (reemplazarValor (rest (rest lista)) clave valor))))
 
   (defn actualizar-amb [lista clave valor]
     ;; "Devuelve un ambiente actualizado con una clave (nombre de la variable o funcion) y su valor. 
     ;; Si el valor es un error, el ambiente no se modifica. De lo contrario, se le carga o reemplaza el valor."
     (cond
-      (esError valor) lista
       (= (count lista) 0) (list clave valor)
-      (contains? lista clave) (reemplazarValor lista clave valor)
-      :else lista))
+      (esError-amb valor) lista
+      (not (= (index-of clave lista) nil)) (reemplazarValor lista clave valor)
+      :else (concat lista (list clave valor))))
 
 
 ; user=> (buscar 'c '(a 1 b 2 c 3 d 4 e 5))
@@ -542,6 +559,7 @@
   ;;  y devuelve el valor asociado. Devuelve un mensaje de error si no la encuentra."
     (cond
       (not (list? lista)) (list '*error* 'unbound-symbol clave)
+      (= (count lista) 0) (list '*error* 'unbound-symbol clave)
       (= clave (first lista)) (second lista)
       :else (buscar clave (rest (rest lista)))))
 
@@ -570,7 +588,7 @@
       (> (count matriz) 2) (list '*error* 'too-many-args)
       (not (list? (first matriz))) (list '*error* 'list 'expected (first matriz))
       (not (list? (second matriz))) (list '*error* 'list 'expected (second matriz))
-      :else (concat (first matriz) (second matriz)))))
+      :else (concat (first matriz) (second matriz))))
 
 
 ; user=> (fnc-env () '(a 1 b 2) '(c 3 d 4))
