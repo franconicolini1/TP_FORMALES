@@ -67,25 +67,162 @@
     (is
      (= (igual? nil nil) true))))
 
-; user=> (igual? nil 'NIL)
-; true
-; user=> (igual? 'NIL nil)
-; true
-; user=> (igual? 'NIL 'NIL)
-; true
-; user=> (igual? nil ())
-; true
-; user=> (igual? 'NIL ())
-; true
-; user=> (igual? () ())
-; true
-; user=> (igual? () '(nil))
-; false
-; user=> (igual? "a" "a")
-; true
-; user=> (igual? "a" "A")
-; false
-; user=> (igual? 'a "a")
-; false
-; user=> (igual? 'a "A")
-; false
+(deftest igual?-empty-lists-equal-test
+(testing "Controlar listas vacias"
+  (is
+    (= (igual? '() '()) true))))
+
+(deftest igual?-empty-list-and-nil-equal-test
+(testing "Controlar nil y lista vacia"
+  (is
+    (= (igual? '() nil) false))))
+
+(deftest igual?-nil1
+  (testing "Controlar nil and 'NIL"
+    (is
+      (= (igual? nil 'NIL) true))))
+
+(deftest igual?-nil2
+  (testing "Controlar 'NIL and nil"
+    (is
+      (= (igual? 'NIL nil) true))))
+
+(deftest igual?-nil3
+  (testing "Controlar 'NIL con 'NIL"
+    (is
+      (= (igual? 'NIL 'NIL) true))))
+
+(deftest igual?-nil4
+  (testing "Controlar 'NIL con ()"
+    (is
+      (= (igual? 'NIL '()) true))))
+
+(deftest igual?-nil5
+  (testing "Controlar () con '(nil)"
+    (is
+      (= (igual? '() '(nil)) false))))
+
+
+(deftest igual?-string-lower
+  (testing "Controlar string a con a"
+    (is
+      (= (igual? "a" "a") true))))
+
+(deftest igual?-string-lower-upper
+  (testing "Controlar string a con A"
+    (is
+      (= (igual? "a" "A") false))))
+
+(deftest igual?-simbol-lower-string
+  (testing "Controlar 'a con string a"
+    (is
+      (= (igual? 'a "a") false))))
+
+(deftest igual?-simbol-upper-string
+  (testing "Controlar 'a con A"
+    (is
+      (= (igual? 'a "A") false))))
+
+(deftest error?-*error*-too-few-args
+  (testing "Controlar '(*error* too-few-args)"
+    (is
+      (= (error? '(*error* too-few-args)) true))))
+
+(deftest error?-list-*error*-too-few-args
+  (testing "Controlar (list '*error* 'too-few-args)"
+    (is
+      (= (error? (list '*error* 'too-few-args)) true))))
+
+(deftest error?-list-*ERROR*-too-few-args
+  (testing "Controlar (list '*ERROR* 'too-few-args)"
+    (is
+      (= (error? (list '*ERROR* 'too-few-args)) true))))
+
+(deftest error?-lista-error
+  (testing "Controlar (list '*Error* 'too-few-args)"
+    (is
+      (= (error? (list '*Error* 'too-few-args)) true))))
+
+(deftest error?-list-*error*
+  (testing "Controlar list '*error*"
+    (is
+      (= (error? (list '*error*)) true))))
+
+(deftest error?-too-few-args
+  (testing "Controlar too-few-args"
+    (is
+      (= (error? (list 'too-few-args)) false))))
+
+(deftest error?-parentesis
+  (testing "Controlar ()"
+    (is
+      (= (error? '()) false))))
+
+(deftest error?-*error*
+  (testing "Controlar '*error*"
+    (is
+      (= (error? '*error*) false))))
+
+(deftest error?-nil
+  (testing "Controlar nil"
+    (is
+      (= (error? nil) false))))
+
+
+(deftest revisar-fnc-*error*-too-few-args
+  (testing "Controlar (*error* too-few-args)"
+    (is
+      (= (revisar-fnc '('*error* 'too-few-args)) ('*error* 'too-few-args)))))
+
+
+(deftest revisar-fnc-too-few-args
+  (testing "Controlar '(too-few-args)"
+    (is
+      (= (revisar-fnc '(too-few-args)) nil))))
+
+(deftest revisar-fnc-*error*
+  (testing "Controlar '*error*"
+    (is
+      (= (revisar-fnc '*error*) nil))))
+
+
+(deftest revisar-fnc-nil
+  (testing "Controlar nil"
+    (is
+      (= (revisar-fnc nil) nil))))
+
+
+(deftest revisar-fnc-lista-vacia
+  (testing "Controlar lista vacia"
+    (is
+      (= (revisar-fnc ()) nil))))
+
+
+(deftest revisar-lae-nil
+  (testing "Controlar nil"
+    (is
+      (= (revisar-fnc nil) nil))))
+
+
+(deftest revisar-fnc-lista-numeros
+  (testing "Controlar '(1 2 3)"
+    (is
+      (= (revisar-fnc '(1 2 3)) nil))))
+
+
+(deftest revisar-lae-parentesis
+  (testing "Controlar lista vacia"
+    (is
+      (= (revisar-fnc ()) nil))))
+
+
+(deftest revisar-fnc-un-error
+  (testing "Controlar '(1 (*error* too-few-args) 3)"
+    (is
+      (= (revisar-lae '(1 (*error* too-few-args) 3)) '(*error too-few-args)))))
+
+
+(deftest revisar-lae-varios-errores
+  (testing "Controlar '(1 (*error* too-few-args) (*error* too-many-args) 3)"
+    (is
+      (= (revisar-lae '(1 (*error* too-few-args) (*error* too-many-args) 3)) '(*error* too-few-args)))))

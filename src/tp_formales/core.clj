@@ -418,10 +418,14 @@
 (defn igual? [elem1 elem2]
   ;; "Verifica la igualdad entre dos elementos al estilo de TLC-LISP (case-insensitive)."
   (cond
+    (and (or (nil? elem1) (nil? elem2)) 
+         (or (and (simple-symbol? elem1) (= elem1 'NIL)) ((and (simple-symbol? elem2) (= elem2 'NIL))))
+    ) true
     (and (number? elem1) (number? elem2)) (= elem1 elem2)
     (and (string? elem1) (string? elem2)) (= elem1 elem2)
-    (and (list? elem1) (list? elem2)) (= (map clojure.string/lower-case elem1) (map clojure.string/lower-case elem2))
     (and (nil? elem1) (nil? elem2)) true
+    (and (list? elem1) (list? elem2)) (= (map clojure.string/lower-case elem1) (map clojure.string/lower-case elem2))
+    (or (and (and (list? elem1) (empty? elem1)) (= elem2 'NIL)) (and (and (list? elem2) (empty? elem2)) (= elem1 'NIL))) true
     (and (simple-symbol? elem1) (simple-symbol? elem2)) (= (clojure.string/lower-case elem1) (clojure.string/lower-case elem2))
     :else false))
 
@@ -450,6 +454,7 @@
   ;; "Devuelve true o false, segun sea o no el arg. un mensaje de error (una lista con *error* como primer elemento)."
   (cond
     (not (list? lista)) false
+    (= (count lista) 0) false
     (= '*error* (clojure.string/lower-case (first lista))) true
     :else false))
 
