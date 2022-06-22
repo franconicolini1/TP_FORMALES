@@ -581,11 +581,15 @@
 ; nil
 ; user=> (fnc-append '(() ()))
 ; nil
-  (defn fnc-append [matriz] ;; LOS ULTIMOS CASOS NO SE SI FUNCIONAN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  (defn fnc-append [matriz]
     ;; "Devuelve el resultado de fusionar 2 sublistas."
     (cond
       (< (count matriz) 2) (list '*error* 'too-few-args)
       (> (count matriz) 2) (list '*error* 'too-many-args)
+      (and (nil? (first matriz)) (nil? (second matriz))) nil
+      (and (list? (first matriz)) (list? (second matriz)) (= (count (first matriz)) 0) (= (count (second matriz)) 0)) nil
+      (and (list? (first matriz)) (nil? (second matriz))) (first matriz)
+      (and (nil? (first matriz)) (list? (second matriz))) (second matriz)
       (not (list? (first matriz))) (list '*error* 'list 'expected (first matriz))
       (not (list? (second matriz))) (list '*error* 'list 'expected (second matriz))
       :else (concat (first matriz) (second matriz))))
@@ -597,13 +601,13 @@
 ; (*error* too-many-args)
 
 
-(defn fnc-env [ambiente1 ambiente2 ambiente3] ;; A CHECKEAR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+(defn fnc-env [ambiente1 ambiente2 ambiente3]
     ;; "Devuelve la fusion de los ambientes global y local."
   (cond
     (not (list? ambiente1)) (list '*error* 'list 'expected ambiente1)
     (not (list? ambiente2)) (list '*error* 'list 'expected ambiente2)
     (not (list? ambiente3)) (list '*error* 'list 'expected ambiente3)
-    (= (count ambiente1) 0) (concat ambiente1 ambiente2)
+    (= (count ambiente1) 0) (concat ambiente2 ambiente3)
     :else (list '*error* 'too-many-args)))
 
 

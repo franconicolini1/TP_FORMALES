@@ -255,9 +255,129 @@
   (testing "Controlar 'c '(a 1 b 2 c 3 d 4 e 5)"
     (is
       (= (buscar 'c '(a 1 b 2 c 3 d 4 e 5)) 3))))
+    
 
-
-(deftest buscar-valor-que-no-esta
-  (testing "Controlar 'f '(a 1 b 2 c 3 d 4 e 5)"
+(deftest fnc-append-pocos-args
+  (testing "Controlar '((1 2))"
     (is
-      (= (buscar 'f '(a 1 b 2 c 3 d 4 e 5)) '(*error* unbound-symbol f)))))
+      (= (fnc-append '((1 2))) '(*error* too-few-args)))))
+
+
+(deftest fnc-append-muchos-args
+  (testing "Controlar ((1 2) (3) (4 5) (6 7))"
+    (is
+      (= (fnc-append '((1 2) (3) (4 5) (6 7))) '(*error* too-many-args)))))
+
+
+(deftest fnc-append-uno-es-numero
+  (testing "Controlar '((1 2) 3)"
+    (is
+      (= (fnc-append '((1 2) 3)) '(*error* list expected 3)))))
+
+
+(deftest fnc-append-uno-es-letra
+  (testing "Controlar '((1 2) A)"
+    (is
+      (= (fnc-append '((1 2) A)) '(*error* list expected A)))))
+
+
+(deftest fnc-append-dos-listas
+  (testing "Controlar '((1 2) (3))"
+    (is
+      (= (fnc-append '((1 2) (3))) '(1 2 3)))))
+
+
+(deftest fnc-append-lista-y-nil
+  (testing "Controlar '((1 2) nil)"
+    (is
+      (= (fnc-append '((1 2) nil)) '(1 2)))))
+
+
+(deftest fnc-append-lista-vacia-y-lista
+  (testing "Controlar '(() (1 2))"
+    (is
+      (= (fnc-append '(() (1 2))) '(1 2)))))
+
+
+(deftest fnc-append-nil-y-nil
+  (testing "Controlar '(nil nil)"
+    (is
+      (= (fnc-append '(nil nil)) nil))))
+
+
+(deftest fnc-append-dos-listas-vacias
+  (testing "Controlar '(() ())"
+    (is
+      (= (fnc-append '(() ())) nil))))
+
+    
+(deftest fnc-env-dos-listas
+  (testing "Controlar () '(a 1 b 2) '(c 3 d 4)"
+    (is
+      (= (fnc-env () '(a 1 b 2) '(c 3 d 4)) '(a 1 b 2 c 3 d 4)))))
+
+
+(deftest fnc-env-muchos-args
+  (testing "Controlar '(5) '(a 1 b 2) '(c 3 d 4)"
+    (is
+      (= (fnc-env '(5) '(a 1 b 2) '(c 3 d 4)) '(*error* too-many-args)))))
+
+
+(deftest fnc-equal-numeros-iguales
+  (testing "Controlar '(1 1)"
+    (is
+      (= (fnc-equal ''(1 1)) 't))))
+
+
+(deftest fnc-equal-simbolos-upper-y-lower-case
+  (testing "Controlar '(A a)"
+    (is
+      (= (fnc-equal '(A a)) 't))))
+
+
+(deftest fnc-equal-strings-que-contienen-numeros
+  (testing "Controlar '('1' '1')"
+    (is
+      (= (fnc-equal '("1" "1")) 't))))
+
+
+(deftest fnc-equal-nil-y-NIL
+  (testing "Controlar '(nil NIL)"
+    (is
+      (= (fnc-equal '(nil NIL)) 't))))
+
+
+(deftest fnc-equal-numeros-diferentes
+  (testing "Controlar '(1 2)"
+    (is
+      (= (fnc-equal '(1 2)) nil))))
+
+
+(deftest fnc-equal-simbolos-diferentes
+  (testing "Controlar '(A B)"
+    (is
+      (= (fnc-equal '(A B)) nil))))
+
+
+(deftest fnc-equal-string-y-numero
+  (testing "Controlar ('1' 1)"
+    (is
+      (= (fnc-equal '("1" 1)) nil))))
+
+
+(deftest fnc-equal-lista-vacia
+  (testing "Controlar ()"
+    (is
+      (= (fnc-equal ())) '(*error* too-few-args))))
+
+    
+(deftest fnc-env-lista-un-elemento
+  (testing "Controlar '(A)"
+    (is
+      (= (fnc-env '(A)) '(*error* too-few-args)))))
+
+
+(deftest fnc-env-lista-tres-elementos
+  (testing "Controlar '(A a A)"
+    (is
+      (= (fnc-env '(A a A)) '(*error* too-many-args)))))
