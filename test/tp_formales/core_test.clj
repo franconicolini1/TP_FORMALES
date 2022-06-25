@@ -662,15 +662,15 @@
     (is
      (= (evaluar-escalar 'x '(v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list 5 '(v 1 w 3 x 6))))))
 
-;; (deftest evaluar-escalar-simbolo-no-esta
-;;   (testing "Controlar 'n '(v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
-;;     (is
-;;      (= (evaluar-escalar 'n '(v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list '(*error* unbound-symbol n) '(v 1 w 3 x 6))))))
+(deftest evaluar-escalar-simbolo-no-esta
+  (testing "Controlar 'n '(v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
+    (is
+     (= (evaluar-escalar 'n '(v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list '(*error* unbound-symbol n) '(v 1 w 3 x 6))))))
 
-;; (deftest evaluar-de-un-parametros
-;;   (testing "Controlar '(de f (x)) '(x 1)"
-;;     (is
-;;      (= (evaluar-de '(de f '(x)) '(x 1)) '(f '(x 1 f '(lambda '(x))))))))
+(deftest evaluar-de-un-parametros
+  (testing "Controlar '(de f (x)) '(x 1)"
+    (is
+     (= (evaluar-de '(de f '(x)) '(x 1)) (list 'f (list 'x 1 'f '(lambda '(x))))))))
 
 ;; (deftest evaluar-de-dos-parametros
 ;;   (testing "Controlar '(de f (x) 2) '(x 1)"
@@ -692,45 +692,45 @@
 ;;     (is
 ;;      (= (evaluar-de '(de f '(x y) '(prin3 x) '(terpri) y) '(x 1)) '(f '(x 1 f '(lambda '(x y) '(prin3 x) '(terpri) y)))))))
 
-;; (deftest evaluar-de-sin-funcion-ni-lista-de-parametros
-;;   (testing "Controlar '(de) '(x 1)"
-;;     (is
-;;      (= (evaluar-de '(de) '(x 1)) '('(*error* list expected nil) '(x 1))))))
+(deftest evaluar-de-sin-funcion-ni-lista-de-parametros
+  (testing "Controlar '(de) '(x 1)"
+    (is
+     (= (evaluar-de '(de) '(x 1)) (list '(*error* list expected nil) '(x 1))))))
 
-;; (deftest evaluar-de-sin-lista-de-parametros
-;;   (testing "Controlar '(de f) '(x 1)"
-;;     (is
-;;      (= (evaluar-de '(de f) '(x 1)) '('(*error* list expected nil) '(x 1))))))
+(deftest evaluar-de-sin-lista-de-parametros
+  (testing "Controlar '(de f) '(x 1)"
+    (is
+     (= (evaluar-de '(de f) '(x 1)) (list '(*error* list expected nil) '(x 1))))))
 
-;; (deftest evaluar-de-numero-como-parametro-en-vez-de-lista
-;;   (testing "Controlar '(de f 2) '(x 1)"
-;;     (is
-;;      (= (evaluar-de '(de f 2) '(x 1)) '('(*error* list expected 2) '(x 1))))))
+(deftest evaluar-de-numero-como-parametro-en-vez-de-lista
+  (testing "Controlar '(de f 2) '(x 1)"
+    (is
+     (= (evaluar-de '(de f 2) '(x 1)) (list '(*error* list expected 2) '(x 1))))))
 
-;; (deftest evaluar-de-dos-numeros-como-parametro-en-vez-de-lista
-;;   (testing "Controlar '(de f 2 3) '(x 1)"
-;;     (is
-;;      (= (evaluar-de '(de f 2 3) '(x 1)) '('(*error* list expected 2) '(x 1))))))
+(deftest evaluar-de-dos-numeros-como-parametro-en-vez-de-lista
+  (testing "Controlar '(de f 2 3) '(x 1)"
+    (is
+     (= (evaluar-de '(de f 2 3) '(x 1)) (list '(*error* list expected 2) '(x 1))))))
 
-;; (deftest evaluar-de-sin-lista-de-parametros
-;;   (testing "Controlar '(de (f)) '(x 1)"
-;;     (is
-;;      (= (evaluar-de '(de (f)) '(x 1)) '('(*error* list expected nil) '(x 1))))))
+(deftest evaluar-de-sin-lista-de-parametros
+  (testing "Controlar '(de (f)) '(x 1)"
+    (is
+     (= (evaluar-de '(de (f)) '(x 1)) (list '(*error* list expected nil) '(x 1))))))
 
-;; (deftest evaluar-de-parametro-que-no-es-lista
-;;   (testing "Controlar '(de 2 x) '(x 1)"
-;;     (is
-;;      (= (evaluar-de '(de 2 x) '(x 1)) '('(*error* list expected x) '(x 1))))))
+(deftest evaluar-de-parametro-que-no-es-lista
+  (testing "Controlar '(de 2 x) '(x 1)"
+    (is
+     (= (evaluar-de '(de 2 x) '(x 1)) (list '(*error* list expected x) '(x 1))))))
 
-;; (deftest evaluar-de-funcion-numero
-;;   (testing "Controlar '(de 2 (x)) '(x 1)"
-;;     (is
-;;      (= (evaluar-de '(de 2 (x)) '(x 1)) '('(*error* symbol expected 2) '(x 1))))))
+(deftest evaluar-de-funcion-numero
+  (testing "Controlar '(de 2 (x)) '(x 1)"
+    (is
+     (= (evaluar-de '(de 2 (x)) '(x 1)) (list '(*error* symbol expected 2) '(x 1))))))
 
-;; (deftest evaluar-de-funcion-nil
-;;   (testing "Controlar '(de nil (x) 2) '(x 1)"
-;;     (is
-;;      (= (evaluar-de '(de nil '(x) 2) '(x 1)) '('(*error* cannot-set nil) '(x 1))))))
+(deftest evaluar-de-funcion-nil
+  (testing "Controlar '(de nil (x) 2) '(x 1)"
+    (is
+     (= (evaluar-de '(de nil '(x) 2) '(x 1)) (list '(*error* cannot-set nil) '(x 1))))))
 
 
 ;; (deftest evaluar-if-caso-true
