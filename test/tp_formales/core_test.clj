@@ -376,30 +376,31 @@
 ; (*error* not-implemented)
 
 
-(deftest fnc-read-one-arg
-  (testing "Controlar '(1)"
-    (is
-     (= (fnc-read '(1)) '(*error* not-implemented)))))
+;; (deftest fnc-read-one-arg
+;;   (testing "Controlar '(1)"
+;;     (is
+;;      (= (fnc-read '(1)) '(*error* not-implemented)))))
 
-(deftest fnc-read-dos-args
-  (testing "Controlar '(1 2)"
-    (is
-     (= (fnc-read '(1 2)) '(*error* not-implemented)))))
+;; (deftest fnc-read-dos-args
+;;   (testing "Controlar '(1 2)"
+;;     (is
+;;      (= (fnc-read '(1 2)) '(*error* not-implemented)))))
 
-(deftest fnc-terpri-sin-args
-  (testing "Controlar ()"
-    (is
-     (= (fnc-terpri ()) "\nnil"))))
+;; (deftest fnc-terpri-sin-args
+;;   (testing "Controlar ()"
+;;     (is
+;;      (= (fnc-terpri ()) "\nnil"))))
 
-(deftest fnc-terpri-one-arg
-  (testing "Controlar '(1)"
-    (is
-     (= (fnc-terpri '(1)) '(*error* not-implemented)))))
+;; (deftest fnc-terpri-one-arg
+;;   (testing "Controlar '(1)"
+;;     (is
+;;      (= (fnc-terpri '(1)) '(*error* not-implemented)))))
 
-(deftest fnc-terpri-dos-args
-  (testing "Controlar '(1 2)"
-    (is
-     (= (fnc-terpri '(1 2)) '(*error* not-implemented)))))
+;; (deftest fnc-terpri-dos-args
+;;   (testing "Controlar '(1 2)"
+;;     (is
+;;      (= (fnc-terpri '(1 2)) '(*error* not-implemented)))))
+
 
 (deftest fnc-add-lista-sin-args
   (testing "Controlar ()"

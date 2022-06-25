@@ -712,13 +712,6 @@
 ; (*error* number-expected A)
 
 
-(defn fnc-add-sumar [lista]
-  (cond
-    (= (count lista) 0) 0
-    (= (count lista) 1) (first lista)
-    (= (count lista) 2) (+ (first lista) (second lista))
-    :else (+ (+ (first lista) (second lista)) (fnc-add (rest (rest lista))))))
-
 (defn checkIsNumber [n]
   (cond
     (number? n) nil
@@ -726,11 +719,11 @@
 
 (defn fnc-add [lista]
   ;; "Suma los elementos de una lista. Minimo 2 elementos."
-  (let [lenErrores (count (filter isNotNil? (map checkIsNumber lista)))]
+  (let [listaErrores (filter isNotNil? (map checkIsNumber lista))]
     (cond
       (<= (count lista) 1) (list '*error* 'too-few-args)
-      (> lenErrores 0) (list '*error* 'number-expected (first lista))
-      :else (fnc-add-sumar lista))))
+      (> (count listaErrores) 0) (first listaErrores)
+      :else (reduce + lista))))
 
 
 ; user=> (fnc-sub ())
@@ -751,17 +744,14 @@
 ; (*error* number-expected A)
 
 
-(defn fnc-sub [lista] ;; PROBAR CON REDUCE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+(defn fnc-sub [lista]
   ;; "Resta los elementos de un lista. Minimo 1 elemento."
-  (cond
-    (number? (first lista)) (cond
-                              (< (count lista) 1) (list '*error* 'too-few-args)
-                              (= (count lista) 1) (- (first lista))
-                              (= (count lista) 2) (cond
-                                                    (number? (second lista)) (- (first lista) (second lista))
-                                                    :else (list '*error* 'number-expected (second lista))))
-    :else (- (first lista) (fnc-sub (rest lista))))
-  :else (list '*error* 'number-expected (first lista)))
+  (let [listaErrores (filter isNotNil? (map checkIsNumber lista))]
+    (cond
+      (= (count lista) 0) (list '*error* 'too-few-args)
+      (and (= (count lista) 1) (number? (first lista))) (- 0 (first lista))
+      (> (count listaErrores) 0) (first listaErrores)
+      :else (reduce - lista))))
 
 
 ; user=> (fnc-lt ())
@@ -876,6 +866,7 @@
   (cond
     (< (count matriz) 1) (list '*error* 'too-few-args)
     (> (count matriz) 1) (list '*error* 'too-many-args)
+    (not (list? (first matriz))) (list '*error* 'list 'expected (first matriz))
     :else (reverse (first matriz))))
 
 
