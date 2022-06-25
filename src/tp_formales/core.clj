@@ -414,20 +414,17 @@
 ; user=> (igual? 'a "A")
 ; false
 
+
 (defn toLowerSiSePuede [s]
   (cond
     (or (string? s) (simple-symbol? s)) (clojure.string/lower-case s)
-    :else s
-  )
-)
-
+    :else s))
 
 (defn igual? [elem1 elem2]
   ;; "Verifica la igualdad entre dos elementos al estilo de TLC-LISP (case-insensitive)."
   (cond
-    (and (or (nil? elem1) (nil? elem2)) 
-         (or (and (simple-symbol? elem1) (= elem1 'NIL)) (and (simple-symbol? elem2) (= elem2 'NIL)))
-    ) true
+    (and (or (nil? elem1) (nil? elem2))
+         (or (and (simple-symbol? elem1) (= elem1 'NIL)) (and (simple-symbol? elem2) (= elem2 'NIL)))) true
     (and (number? elem1) (number? elem2)) (= elem1 elem2)
     (and (string? elem1) (string? elem2)) (= elem1 elem2)
     (and (nil? elem1) (nil? elem2)) true
@@ -497,23 +494,22 @@
 ; (*error* too-few-args)
 
 
-  (defn isNotNil? [elem]
-    (if (nil? elem) false true))
+(defn isNotNil? [elem]
+  (if (nil? elem) false true))
 
-  (defn devolverPrimeroSiExiste [lista]
-    (if (> (count lista) 0) (first lista) nil))
+(defn devolverPrimeroSiExiste [lista]
+  (if (> (count lista) 0) (first lista) nil))
 
-  (defn esError-lae [lista]
-    (cond
-      (and (list? lista) (> (count lista) 0) (or (= '*error* (first lista)) (= "*error*" (first lista)))) (list (first lista) (second lista))
-      :else nil))
+(defn esError-lae [lista]
+  (cond
+    (and (list? lista) (> (count lista) 0) (or (= '*error* (first lista)) (= "*error*" (first lista)))) (list (first lista) (second lista))
+    :else nil))
 
-  (defn revisar-lae [matriz]
+(defn revisar-lae [matriz]
   ;; "Devuelve el primer elemento que es un mensaje de error. Si no hay ninguno, devuelve nil."
-    (cond
-      (not (list? matriz)) nil
-      :else (devolverPrimeroSiExiste (filter isNotNil? (map esError-lae matriz))))
-    )
+  (cond
+    (not (list? matriz)) nil
+    :else (devolverPrimeroSiExiste (filter isNotNil? (map esError-lae matriz)))))
 
 
 ; user=> (actualizar-amb '(a 1 b 2 c 3) 'd 4)
@@ -525,27 +521,28 @@
 ; user=> (actualizar-amb () 'b 7)
 ; (b 7)
 
-  (defn esError-amb [lista]
-    (cond
-      (and (list? lista) (> (count lista) 0) (or (= '*error* (first lista)) (= "*error*" (first lista)))) true
-      :else nil))
 
-  (defn index-of [e coll] (first (keep-indexed #(if (= e %2) %1) coll)))
+(defn esError-amb [lista]
+  (cond
+    (and (list? lista) (> (count lista) 0) (or (= '*error* (first lista)) (= "*error*" (first lista)))) true
+    :else nil))
 
-  (defn reemplazarValor [lista clave valor]
-    (cond
-      (< (count lista) 2) lista
-      (= (first lista) clave) (concat (list clave valor) (reemplazarValor (rest (rest lista)) clave valor))
-      :else (concat (list (first lista) (second lista)) (reemplazarValor (rest (rest lista)) clave valor))))
+(defn index-of [e coll] (first (keep-indexed #(if (= e %2) %1) coll)))
 
-  (defn actualizar-amb [lista clave valor]
+(defn reemplazarValor [lista clave valor]
+  (cond
+    (< (count lista) 2) lista
+    (= (first lista) clave) (concat (list clave valor) (reemplazarValor (rest (rest lista)) clave valor))
+    :else (concat (list (first lista) (second lista)) (reemplazarValor (rest (rest lista)) clave valor))))
+
+(defn actualizar-amb [lista clave valor]
     ;; "Devuelve un ambiente actualizado con una clave (nombre de la variable o funcion) y su valor. 
     ;; Si el valor es un error, el ambiente no se modifica. De lo contrario, se le carga o reemplaza el valor."
-    (cond
-      (= (count lista) 0) (list clave valor)
-      (esError-amb valor) lista
-      (not (= (index-of clave lista) nil)) (reemplazarValor lista clave valor)
-      :else (concat lista (list clave valor))))
+  (cond
+    (= (count lista) 0) (list clave valor)
+    (esError-amb valor) lista
+    (not (= (index-of clave lista) nil)) (reemplazarValor lista clave valor)
+    :else (concat lista (list clave valor))))
 
 
 ; user=> (buscar 'c '(a 1 b 2 c 3 d 4 e 5))
@@ -554,14 +551,14 @@
 ; (*error* unbound-symbol f)
 
 
-  (defn buscar [clave lista]
+(defn buscar [clave lista]
   ;; "Busca una clave en un ambiente (una lista con claves en las posiciones impares [1, 3, 5...] y valores en las pares [2, 4, 6...]
   ;;  y devuelve el valor asociado. Devuelve un mensaje de error si no la encuentra."
-    (cond
-      (not (list? lista)) (list '*error* 'unbound-symbol clave)
-      (= (count lista) 0) (list '*error* 'unbound-symbol clave)
-      (= clave (first lista)) (second lista)
-      :else (buscar clave (rest (rest lista)))))
+  (cond
+    (not (list? lista)) (list '*error* 'unbound-symbol clave)
+    (= (count lista) 0) (list '*error* 'unbound-symbol clave)
+    (= clave (first lista)) (second lista)
+    :else (buscar clave (rest (rest lista)))))
 
 ; user=> (fnc-append '( (1 2) ))
 ; (*error* too-few-args)
@@ -581,18 +578,18 @@
 ; nil
 ; user=> (fnc-append '(() ()))
 ; nil
-  (defn fnc-append [matriz]
+(defn fnc-append [matriz]
     ;; "Devuelve el resultado de fusionar 2 sublistas."
-    (cond
-      (< (count matriz) 2) (list '*error* 'too-few-args)
-      (> (count matriz) 2) (list '*error* 'too-many-args)
-      (and (nil? (first matriz)) (nil? (second matriz))) nil
-      (and (list? (first matriz)) (list? (second matriz)) (= (count (first matriz)) 0) (= (count (second matriz)) 0)) nil
-      (and (list? (first matriz)) (nil? (second matriz))) (first matriz)
-      (and (nil? (first matriz)) (list? (second matriz))) (second matriz)
-      (not (list? (first matriz))) (list '*error* 'list 'expected (first matriz))
-      (not (list? (second matriz))) (list '*error* 'list 'expected (second matriz))
-      :else (concat (first matriz) (second matriz))))
+  (cond
+    (< (count matriz) 2) (list '*error* 'too-few-args)
+    (> (count matriz) 2) (list '*error* 'too-many-args)
+    (and (nil? (first matriz)) (nil? (second matriz))) nil
+    (and (list? (first matriz)) (list? (second matriz)) (= (count (first matriz)) 0) (= (count (second matriz)) 0)) nil
+    (and (list? (first matriz)) (nil? (second matriz))) (first matriz)
+    (and (nil? (first matriz)) (list? (second matriz))) (second matriz)
+    (not (list? (first matriz))) (list '*error* 'list 'expected (first matriz))
+    (not (list? (second matriz))) (list '*error* 'list 'expected (second matriz))
+    :else (concat (first matriz) (second matriz))))
 
 
 ; user=> (fnc-env () '(a 1 b 2) '(c 3 d 4))
@@ -633,10 +630,19 @@
 ; (*error* too-many-args)
 
 
-(defn fnc-equal []
+(defn fnc-equal [lista]
     ;; "Compara 2 elementos. Si son iguales, devuelve t. Si no, nil."
-  (println "NOT IMPLEMENTED"))
-
+  (cond
+    (<= (count lista) 1) (list '*error* 'too-few-args)
+    (> (count lista) 2) (list '*error* 'too-many-args)
+    (and (number? (first lista)) (number? (second lista))) (if (= (first lista) (second lista)) 't nil)
+    (and (string? (first lista)) (string? (second lista))) (if (= (clojure.string/lower-case (first lista))
+                                                                  (clojure.string/lower-case (second lista))) 't nil)
+    (and (simple-symbol? (first lista)) (simple-symbol? (second lista))) (if (= (clojure.string/lower-case (first lista))
+                                                                                (clojure.string/lower-case (second lista))) 't nil)
+    (and (nil? (first lista)) (nil? (second lista))) 't
+    (or (and (nil? (first lista)) (= (second lista) 'NIL)) (and (nil? (second lista)) (= (first lista) 'NIL))) 't
+    :else nil))
 
 ; user=> (fnc-read ())
 ; 1
@@ -666,9 +672,11 @@
 ; (*error* not-implemented)
 
 
-(defn fnc-read []
+(defn fnc-read [lista] ; COMPLETAR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ;; "Devuelve la lectura de un elemento de TLC-LISP desde la terminal/consola."
-  (println "NOT IMPLEMENTED"))
+  (cond
+    (> (count lista) 0) (list '*error* 'not-implemented)
+    :else true))
 
 
 ; user=> (fnc-terpri ())
@@ -680,11 +688,10 @@
 ; (*error* not-implemented)
 
 
-(defn fnc-terpri [lista] ;; REVISARRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
+(defn fnc-terpri [lista]
   ;; "Imprime un salto de línea y devuelve nil."
-  (cond
-    (and (list? lista) (> (count lista) 0)) (list '*error* 'not-implemented)
-    :else (println ("\n") nil)))
+  (if (and (list? lista) (> (count lista) 0)) (list '*error* 'not-implemented) (println "\n"))
+  nil)
 
 
 ; user=> (fnc-add ())
@@ -705,16 +712,25 @@
 ; (*error* number-expected A)
 
 
+(defn fnc-add-sumar [lista]
+  (cond
+    (= (count lista) 0) 0
+    (= (count lista) 1) (first lista)
+    (= (count lista) 2) (+ (first lista) (second lista))
+    :else (+ (+ (first lista) (second lista)) (fnc-add (rest (rest lista))))))
+
+(defn checkIsNumber [n]
+  (cond
+    (number? n) nil
+    :else (list '*error* 'number-expected n)))
+
 (defn fnc-add [lista]
   ;; "Suma los elementos de una lista. Minimo 2 elementos."
-  (cond
-    (number? (first lista)) (cond
-                              (<= (count lista) 1) (list '*error* 'too-few-args)
-                              (= (count lista) 2) (cond
-                                                    (number? (second lista)) (+ (first lista) (second lista))
-                                                    :else (list '*error* 'number-expected (second lista))))
-    :else (+ (first lista) (fnc-add (rest lista))))
-  :else (list '*error* 'number-expected (first lista)))
+  (let [lenErrores (count (filter isNotNil? (map checkIsNumber lista)))]
+    (cond
+      (<= (count lista) 1) (list '*error* 'too-few-args)
+      (> lenErrores 0) (list '*error* 'number-expected (first lista))
+      :else (fnc-add-sumar lista))))
 
 
 ; user=> (fnc-sub ())
