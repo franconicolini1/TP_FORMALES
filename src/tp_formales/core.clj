@@ -886,9 +886,16 @@
 ; ((*error* unbound-symbol n) (v 1 w 3 x 6))
 
 
-(defn evaluar-escalar []
+(defn evaluar-escalar [e lista1 lista2]
   ;; "Evalua una expresion escalar consultando, si corresponde, los ambientes local y global. Devuelve una lista con el resultado y un ambiente."
-  (println "NOT IMPLEMENTED"))
+  (let [index1 (index-of (symbol (clojure.string/lower-case e)) lista1)
+        index2 (index-of (symbol (clojure.string/lower-case e)) lista2)]
+    (cond
+      (and (nil? index1) (nil? index2) (not (simple-symbol? e))) (list e lista1)
+      (and (nil? index1) (nil? index2)) (list (list '*error* 'unbound-symbol e) lista1)
+      (and (not (nil? index1)) (not (nil? index2))) (list (nth lista2 (inc index2)) lista1)
+      (nil? index1) (list (nth lista2 (inc index2)) lista1)
+      :else (list (nth lista1 (inc index1)) lista1))))
 
 
 ; user=> (evaluar-de '(de f (x)) '(x 1))
