@@ -1017,6 +1017,7 @@
 
 ; user=> (evaluar-or '(or (setq b 8) nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3))
 ; (8 (nil nil t t w 5 x 4 b 8))
+
 ; user=> (evaluar-or '(or nil 6 nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3))
 ; (6 (nil nil t t w 5 x 4))
 ; user=> (evaluar-or '(or nil 6 r nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3))
@@ -1027,21 +1028,29 @@
 ; (nil (nil nil t t w 5 x 4))
 
 
-(defn n-params [ult lista1 lista2]
+(defn getNumero [lista]
   (cond
-    (pertenece? lista1 ult) (list (nth lista1 (inc (index-of ult lista1))) lista1)
-    (pertenece? lista2 ult) (list (nth lista2 (inc (index-of ult lista2))) lista1)
-    (number? ult) (list ult lista1)
-    :else (list (list '*error* 'unbound-symbol ult) lista1)))
+    (= (count lista) 0) nil
+    (number? (first lista)) (first lista)
+    :else (getNumero (rest lista))))
+
+(defn n-params [params lista1 lista2]
+  (cond
+    (not (nil? (getNumero params))) (list (getNumero params) lista1)
+    (pertenece? lista1 (first params)) (list (nth lista1 (inc (index-of (first params) lista1))) lista1)
+    (pertenece? lista2 (first params)) (list (nth lista2 (inc (index-of (first params) lista2))) lista1)
+    (number? (first params)) (list (first params) lista1)
+    (> (count params) 1) (n-params (rest params) lista1 lista2)
+    :else (list (list '*error* 'unbound-symbol (first params)) lista1)))
 
 (defn evaluar-or [condicion lista1 lista2]
   ;; "Evalua una forma 'or'. Devuelve una lista con el resultado y un ambiente."
-  (let [ult (nth condicion (dec (count condicion)))]
-    (cond
-      (= (count condicion) 1) (list nil lista1)
-      (= (count condicion) 2) (n-params ult lista1 lista2)
-      (>= (count condicion) 3) (n-params ult lista1 lista2)
-      :else true)))
+  (cond
+    (= (count condicion) 1) (list nil lista1)
+    (and (list? (second condicion)) (= (first (second condicion)) 'setq)) (list (evaluar-or (rest (second condicion)) lista1 lista2) (evaluar-setq (second condicion) lista1 lista2))
+    (= (count condicion) 2) (n-params (rest condicion) lista1 lista2)
+    (>= (count condicion) 3) (n-params (rest condicion) lista1 lista2)
+    :else true))
 
 
 ; user=> (evaluar-setq '(setq) '(nil nil t t + add w 5 x 4) '(x 1 y nil z 3))

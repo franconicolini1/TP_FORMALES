@@ -867,15 +867,15 @@
     (is
      (= (evaluar-or '(or nil 6 nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) (list 6 (list nil nil 't 't 'w 5 'x 4))))))
 
-;; (deftest evaluar-or-nil-numero-6-r-nil-params
-;;   (testing "Controlar '(or nil 6 r nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
-;;     (is
-;;       (= (evaluar-or '(or nil 6 r nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) '(6 '(nil nil t t w 5 x 4))))))
+(deftest evaluar-or-nil-numero-6-r-nil-params
+  (testing "Controlar '(or nil 6 r nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
+    (is
+     (= (evaluar-or '(or nil 6 r nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) (list 6 (list nil nil 't 't 'w 5 'x 4))))))
 
-;; (deftest evaluar-or-nil-nil-nil-nil
-;;   (testing "Controlar '(or nil nil nil nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
-;;     (is
-;;       (= (evaluar-or '(or nil nil nil nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) '(nil '(nil nil t t w 5 x 4))))))
+(deftest evaluar-or-nil-nil-nil-nil
+  (testing "Controlar '(or nil nil nil nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
+    (is
+     (= (evaluar-or '(or nil nil nil nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) (list nil (list nil nil 't 't 'w 5 'x 4))))))
 
 ;; (deftest evaluar-setq-sin-params
 ;;   (testing "Controlar '(setq) '(nil nil t t + add w 5 x 4) '(x 1 y nil z 3)"
