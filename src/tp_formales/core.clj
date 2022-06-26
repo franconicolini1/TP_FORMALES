@@ -114,7 +114,7 @@
     (cond
       (not (seq? expre))             (evaluar-escalar expre amb-global amb-local)
 
-      (igual? (first expre) 'cond)    (evaluar-cond expre amb-global amb-local)
+      (igual? (first expre) 'cond)    (evaluar-cond expre amb-global amb-local) ; ACA NO SE SI VAN LAS FORMAS ESPECIALES Y MACROS O SI VAN EN EL :ELSE
       (igual? (first expre) 'if)      (evaluar-if expre amb-global amb-local)
       (igual? (first expre) 'or)      (evaluar-or expre amb-global amb-local)
       (igual? (first expre) 'eval)    (evaluar-eval expre amb-global amb-local)
