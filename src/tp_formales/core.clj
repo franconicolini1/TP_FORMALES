@@ -1062,6 +1062,7 @@
 ; (7 (nil nil t t + add w 5 x 7))
 ; user=> (evaluar-setq '(setq x (+ x 1)) '(nil nil t t + add w 5 x 4) '(x 1 y nil z 3))
 ; (2 (nil nil t t + add w 5 x 2))
+
 ; user=> (evaluar-setq '(setq x (+ x 1)) '(nil nil t t + add w 5 x 4) '(y nil z 3))
 ; (5 (nil nil t t + add w 5 x 5))
 ; user=> (evaluar-setq '(setq nil) '(nil nil t t + add w 5 x 4) '(x 1 y nil z 3))
@@ -1080,10 +1081,23 @@
 ; (9 (nil nil t t + add w 5 x 7 y 8 z 9))
 
 
-(defn evaluar-setq []
+(defn replace-in-list [lista indice nuevo]
+  (concat (take indice lista) (list nuevo) (nthnext lista (inc indice))))
+
+(defn reemplazarOAgregar [condicion lista]
+  (cond
+    (pertenece? lista (first condicion)) (replace-in-list lista (inc (index-of (first condicion) lista)) (second condicion))
+    :else (concat lista condicion)))
+
+(defn evaluar-setq [condicion lista1 lista2]
   ;; "Evalua una forma 'setq'. Devuelve una lista con el resultado y un ambiente actualizado."
-  (println "NOT IMPLEMENTED"))
+  (cond
+    (< (count condicion) 3) (list (list '*error* 'list 'expected nil) lista1)
+    (and (= (count condicion) 3) (number? (nth condicion 2))) (list (nth condicion 2) (reemplazarOAgregar (rest condicion) lista1))
+    (and (= (count condicion) 3) (list? (nth condicion 2))) (concat (evaluar (nth condicion 2) lista1 lista2)
+                                                                    (reemplazarOAgregar (list (second condicion) (first (evaluar (nth condicion 2) lista1 lista2))) lista1))))
 
 
 ; Al terminar de cargar el archivo en el REPL de Clojure (con load-file), se debe devolver true.
+
 
