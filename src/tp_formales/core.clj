@@ -1013,7 +1013,6 @@
 ; (6 (nil nil t t w 5 x 4))
 ; user=> (evaluar-or '(or nil 6) '(nil nil t t w 5 x 4) '(x 1 y nil z 3))
 ; (6 (nil nil t t w 5 x 4))
-
 ; user=> (evaluar-or '(or (setq b 8) nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3))
 ; (8 (nil nil t t w 5 x 4 b 8))
 
@@ -1046,7 +1045,7 @@
   ;; "Evalua una forma 'or'. Devuelve una lista con el resultado y un ambiente."
   (cond
     (= (count condicion) 1) (list nil lista1)
-    (and (list? (second condicion)) (= (first (second condicion)) 'setq)) (list (evaluar-or (rest (second condicion)) lista1 lista2) (evaluar-setq (second condicion) lista1 lista2))
+    (and (list? (second condicion)) (= (first (second (second condicion))) 'setq)) (evaluar-setq (second (second condicion)) lista1 lista2)
     (= (count condicion) 2) (n-params (rest condicion) lista1 lista2)
     (>= (count condicion) 3) (n-params (rest condicion) lista1 lista2)
     :else true))

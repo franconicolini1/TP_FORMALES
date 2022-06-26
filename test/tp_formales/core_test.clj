@@ -888,10 +888,10 @@
     (is
      (= (evaluar-or '(or nil 6) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) (list 6 (list nil nil 't 't 'w 5 'x 4))))))
 
-;; (deftest evaluar-or-setq-b-numero-8-params
-;;   (testing "Controlar '(or (setq b 8) nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
-;;     (is
-;;      (= (evaluar-or '(or '(setq b 8) nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) (list 8 (list nil nil 't 't 'w 5 'x 4 'b 8))))))
+(deftest evaluar-or-setq-b-numero-8-params
+  (testing "Controlar '(or (setq b 8) nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
+    (is
+     (= (evaluar-or '(or '(setq b 8) nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) (list 8 (list nil nil 't 't 'w 5 'x 4 'b 8))))))
 
 (deftest evaluar-or-nil-numero-6-nil-params
   (testing "Controlar '(or nil 6 nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
