@@ -732,81 +732,80 @@
     (is
      (= (evaluar-de '(de nil '(x) 2) '(x 1)) (list '(*error* cannot-set nil) '(x 1))))))
 
-
-;; (deftest evaluar-if-caso-true
-;;   (testing "Controlar '(if t) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
-;;     (is
-;;      (= (evaluar-if '(if t) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) '(nil '(nil nil t t v 1 w 3 x 6))))))
+(deftest evaluar-if-caso-true
+  (testing "Controlar '(if t) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
+    (is
+     (= (evaluar-if '(if t) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list nil (list nil nil 't 't 'v 1 'w 3 'x 6))))))
 
 ;; (deftest evaluar-if-numero-distinto-de-0
 ;;   (testing "Controlar '(if 7) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
 ;;     (is
-;;      (= (evaluar-if '(if 7) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) '(nil '(nil nil t t v 1 w 3 x 6))))))
+;;      (= (evaluar-if '(if 7) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list nil (list nil nil 't 't 'v 1 'w 3 'x 6))))))
 
-;; (deftest evaluar-if-nil
-;;   (testing "Controlar '(if nil) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
-;;     (is
-;;      (= (evaluar-if '(if nil) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) '(nil '(nil nil t t v 1 w 3 x 6))))))
+(deftest evaluar-if-nil
+  (testing "Controlar '(if nil) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
+    (is
+     (= (evaluar-if '(if nil) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list nil (list nil nil 't 't 'v 1 'w 3 'x 6))))))
 
-;; (deftest evaluar-if-simbolo
-;;   (testing "Controlar '(if x) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
-;;     (is
-;;      (= (evaluar-if '(if x) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) '(nil '(nil nil t t v 1 w 3 x 6))))))
+(deftest evaluar-if-simbolo
+  (testing "Controlar '(if x) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
+    (is
+     (= (evaluar-if '(if x) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list nil (list nil nil 't 't 'v 1 'w 3 'x 6))))))
 
-;; (deftest evaluar-if-simbolo-y-numero-distinto-de-cero
-;;   (testing "Controlar '(if t 9) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola'))"
-;;     (is
-;;      (= (evaluar-if '(if t 9) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) '(9 '(nil nil t t v 1 w 3 x 6))))))
+(deftest evaluar-if-simbolo-y-numero-distinto-de-cero
+  (testing "Controlar '(if t 9) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola'))"
+    (is
+     (= (evaluar-if '(if t 9) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list 9 (list nil nil 't 't 'v 1 'w 3 'x 6))))))
 
-;; (deftest evaluar-if-z-y-numero-9
-;;   (testing "Controlar '(if z 9) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
-;;     (is
-;;      (= (evaluar-if '(if z 9) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) '(9 '(nil nil t t v 1 w 3 x 6))))))
+(deftest evaluar-if-z-y-numero-9
+  (testing "Controlar '(if z 9) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
+    (is
+     (= (evaluar-if '(if z 9) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list 9 (list nil nil 't 't 'v 1 'w 3 'x 6))))))
 
-;; (deftest  evaluar-if-w-y-numero-9
-;;   (testing "Controlar '(if w 9) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
-;;     (is
-;;      (= (evaluar-if '(if w 9) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) '(9 '(nil nil t t v 1 w 3 x 6))))))
+(deftest  evaluar-if-w-y-numero-9
+  (testing "Controlar '(if w 9) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
+    (is
+     (= (evaluar-if '(if w 9) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list 9 (list nil nil 't 't 'v 1 'w 3 'x 6))))))
 
-;; (deftest evaluar-if-r-y-numero-9
-;;   (testing "Controlar '(if r 9) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
-;;     (is
-;;      (= (evaluar-if '(if r 9) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) '('(*error* unbound-symbol r) '(nil nil t t v 1 w 3 x 6))))))
+(deftest evaluar-if-r-y-numero-9
+  (testing "Controlar '(if r 9) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
+    (is
+     (= (evaluar-if '(if r 9) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list (list '*error* 'unbound-symbol 'r) (list nil nil 't 't 'v 1 'w 3 'x 6))))))
 
-;; (deftest evaluar-if-nil-y-numero-9
-;;   (testing "Controlar '(if nil 9) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
-;;     (is
-;;      (= (evaluar-if '(if nil 9) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) '(nil '(nil nil t t v 1 w 3 x 6))))))
+(deftest evaluar-if-nil-y-numero-9
+  (testing "Controlar '(if nil 9) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
+    (is
+     (= (evaluar-if '(if nil 9) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list nil (list nil nil 't 't 'v 1 'w 3 'x 6))))))
 
-;; (deftest evaluar-if-nil-y-numero-9-y-z
-;;   (testing "Controlar '(if nil 9 z) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
-;;     (is
-;;      (= (evaluar-if '(if nil 9 z) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) '("hola" '(nil nil t t v 1 w 3 x 6))))))
+(deftest evaluar-if-nil-y-numero-9-y-z
+  (testing "Controlar '(if nil 9 z) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
+    (is
+     (= (evaluar-if '(if nil 9 z) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list "hola" (list nil nil 't 't 'v 1 'w 3 'x 6))))))
 
-;; (deftest evaluar-if-nil-numeros-9-1-2-3-z
-;;   (testing "Controlar '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
-;;     (is
-;;      (= (evaluar-if '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) '("hola" '(nil nil t t v 1 w 3 x 6))))))
+(deftest evaluar-if-nil-numeros-9-1-2-3-z
+  (testing "Controlar '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
+    (is
+     (= (evaluar-if '(if nil 9 1 2 3 z) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list "hola" (list nil nil 't 't 'v 1 'w 3 'x 6))))))
 
-;; (deftest evaluar-if-nil-numero-9-w
-;;   (testing "Controlar '(if nil 9 w) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
-;;     (is
-;;      (= (evaluar-if '(if nil 9 w) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) '(3 '(nil nil t t v 1 w 3 x 6))))))
+(deftest evaluar-if-nil-numero-9-w
+  (testing "Controlar '(if nil 9 w) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
+    (is
+     (= (evaluar-if '(if nil 9 w) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list 3 (list nil nil 't 't 'v 1 'w 3 'x 6))))))
 
-;; (deftest evaluar-if-nil-numeros-9-8
-;;   (testing "Controlar '(if nil 9 8) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
-;;     (is
-;;      (= (evaluar-if '(if nil 9 8) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) '(8 '(nil nil t t v 1 w 3 x 6))))))
+(deftest evaluar-if-nil-numeros-9-8
+  (testing "Controlar '(if nil 9 8) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
+    (is
+     (= (evaluar-if '(if nil 9 8) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list 8 (list nil nil 't 't 'v 1 'w 3 'x 6))))))
 
-;; (deftest evaluar-if-nil-a-numero-8
-;;   (testing "Controlar '(if nil a 8) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
-;;     (is
-;;      (= (evaluar-if '(if nil a 8) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) '(8 '(nil nil t t v 1 w 3 x 6))))))
+(deftest evaluar-if-nil-a-numero-8
+  (testing "Controlar '(if nil a 8) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
+    (is
+     (= (evaluar-if '(if nil a 8) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list 8 (list nil nil 't 't 'v 1 'w 3 'x 6))))))
 
 ;; (deftest evaluar-if-gt-2-0-a-8-error
 ;;   (testing "Controlar '(if (gt 2 0) a 8) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
 ;;     (is
-;;      (= (evaluar-if '(if (gt 2 0) a 8) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) '('(*error* unbound-symbol a) '(gt gt nil nil t t v 1 w 3 x 6))))))
+;;      (= (evaluar-if '(if (gt 2 0) a 8) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list (list '*error* 'unbound-symbol 'a) (list 'gt 'gt nil nil 't 't 'v 1 'w 3 'x 6))))))
 
 ;; (deftest evaluar-if-gt-2-0-a-8-success
 ;;   (testing "Controlar '(if (gt 0 2) a 8) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
@@ -818,57 +817,55 @@
 ;;     (is
 ;;      (= (evaluar-if '(if (gt 0 2) a (setq m 8)) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) '(8 '(gt gt nil nil t t v 1 w 3 x 6 m 8))))))
 
-;; (deftest evaluar-or-sin-params
-;;   (testing "Controlar '(or) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
-;;     (is
-;;      (= (evaluar-or '(or) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) '(nil '(nil nil t t w 5 x 4))))))
+(deftest evaluar-or-sin-params
+  (testing "Controlar '(or) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
+    (is
+     (= (evaluar-or '(or) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) (list nil (list nil nil 't 't 'w 5 'x 4))))))
 
-;; (deftest  evaluar-or-un-param
-;;   (testing "Controlar '(or nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
-;;     (is
-;;       (= (evaluar-or '(or nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) '(9 '(nil nil t t v 1 w 3 x 6))))))
+(deftest  evaluar-or-un-param
+  (testing "Controlar '(or nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
+    (is
+     (= (evaluar-or '(or nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) (list nil (list nil nil 't 't 'w 5 'x 4))))))
 
-;; (deftest evaluar-or-t-param
-;;   (testing "Controlar '(or t) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
-;;     (is
-;;       (= (evaluar-or '(or t) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) '(t '(nil nil t t w 5 x 4))))))
+(deftest evaluar-or-t-param
+  (testing "Controlar '(or t) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
+    (is
+     (= (evaluar-or '(or t) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) (list 't (list nil nil 't 't 'w 5 'x 4))))))
 
-;; (deftest evaluar-or-w-param
-;;   (testing "Controlar '(or w) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
-;;     (is
-;;       (= (evaluar-or '(or w) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) '(5 '(nil nil t t w 5 x 4))))))
+(deftest evaluar-or-w-param
+  (testing "Controlar '(or w) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
+    (is
+     (= (evaluar-or '(or w) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) (list 5 (list nil nil 't 't 'w 5 'x 4))))))
 
-;; (deftest evaluar-or-r-param
-;;   (testing "Controlar '(or r) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
-;;     (is
-;;       (= (evaluar-or '(or r) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) '('(*error* unbound-symbol r) '(nil nil t t w 5 x 4))))))
+(deftest evaluar-or-r-param
+  (testing "Controlar '(or r) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
+    (is
+     (= (evaluar-or '(or r) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) (list (list '*error* 'unbound-symbol 'r) (list nil nil 't 't 'w 5 'x 4))))))
 
-;; (deftest evaluar-or-y-param
-;;   (testing "Controlar '(or y) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
-;;     (is
-;;       (= (evaluar-or '(or y) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) '(nil '(nil nil t t w 5 x 4))))))
+(deftest evaluar-or-y-param
+  (testing "Controlar '(or y) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
+    (is
+     (= (evaluar-or '(or y) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) (list nil (list nil nil 't 't 'w 5 'x 4))))))
 
-;; (deftest evaluar-or-numero-6-param
-;;   (testing "Controlar '(or 6) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
-;;     (is
-;;       (= (evaluar-or '(or 6) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) '(6 '(nil nil t t w 5 x 4))))))
+(deftest evaluar-or-numero-6-param
+  (testing "Controlar '(or 6) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
+    (is
+     (= (evaluar-or '(or 6) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) (list 6 (list nil nil 't 't 'w 5 'x 4))))))
 
-;; (deftest evaluar-or-nil-numero-6-params
-;;   (testing "Controlar '(or nil 6) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
-;;     (is
-;;       (= (evaluar-or '(or nil 6) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) '(6 '(nil nil t t w 5 x 4))))))
+(deftest evaluar-or-nil-numero-6-params
+  (testing "Controlar '(or nil 6) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
+    (is
+     (= (evaluar-or '(or nil 6) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) (list 6 (list nil nil 't 't 'w 5 'x 4))))))
 
-;; (deftest evaluar-or-setq-b-numero-8-params
-;;   (testing "Controlar '(or (setq b 8) nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
-;;     (is
-;;       (= (evaluar-or '(or '(setq b 8) nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) '(8 '(nil nil t t w 5 x 4 b 8))))))
+(deftest evaluar-or-setq-b-numero-8-params
+  (testing "Controlar '(or (setq b 8) nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
+    (is
+     (= (evaluar-or '(or '(setq b 8) nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) (list 8 (list nil nil 't 't 'w 5 'x 4 'b 8))))))
 
-;; (deftest evaluar-or-nil-numero-6-nil-params
-;;   (testing "Controlar '(or nil 6 nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
-;;     (is
-;;       (= (evaluar-or '(or nil 6 nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) '(6 '(nil nil t t w 5 x 4))))))
-
-
+(deftest evaluar-or-nil-numero-6-nil-params
+  (testing "Controlar '(or nil 6 nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
+    (is
+     (= (evaluar-or '(or nil 6 nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)) (list 6 (list nil nil 't 't 'w 5 'x 4))))))
 
 ;; (deftest evaluar-or-nil-numero-6-r-nil-params
 ;;   (testing "Controlar '(or nil 6 r nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"

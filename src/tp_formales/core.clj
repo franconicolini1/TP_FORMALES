@@ -975,10 +975,27 @@
 ; user=> (evaluar-if '(if (gt 0 2) a (setq m 8)) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola"))
 ; (8 (gt gt nil nil t t v 1 w 3 x 6 m 8))
 
+(defn pertenece? [lista elemento]
+  ;; "Devuelve true si el elemento pertenece a la lista."
+  (cond
+    (= (count lista) 0) false
+    (= elemento (first lista)) true
+    :else (pertenece? (rest lista) elemento)))
 
-(defn evaluar-if []
+(defn evaluar-if [condicion lista1 lista2]
   ;; "Evalua una forma 'if'. Devuelve una lista con el resultado y un ambiente eventualmente modificado."
-  (println "NOT IMPLEMENTED"))
+  (let [seg (second condicion)]
+    (cond
+      (and (= (count condicion) 2) (pertenece? lista1 seg)) (list nil lista1)
+      (and (= (count condicion) 3) (and (nil? seg) (number? (nth condicion 2)))) (list nil lista1)
+      (and (= (count condicion) 3) (or (pertenece? lista1 seg) (pertenece? lista2 seg))) (list (nth condicion 2) lista1)
+      (and (= (count condicion) 3) (and (not (pertenece? lista1 seg)) (not (pertenece? lista2 seg)))) (list (list '*error* 'unbound-symbol seg) lista1)
+      (> (count condicion) 3) (cond
+                                (not (nil? (index-of (nth condicion (dec (count condicion))) lista2))) (list (nth lista2 (inc (index-of (nth condicion (dec (count condicion))) lista2))) lista1)
+                                (not (nil? (index-of (nth condicion (dec (count condicion))) lista1))) (list (nth lista1 (inc (index-of (nth condicion (dec (count condicion))) lista1))) lista1)
+                                :else (list (nth condicion 3) lista1))
+
+      :else nil)))
 
 
 ; user=> (evaluar-or '(or) '(nil nil t t w 5 x 4) '(x 1 y nil z 3))
@@ -997,6 +1014,7 @@
 ; (6 (nil nil t t w 5 x 4))
 ; user=> (evaluar-or '(or nil 6) '(nil nil t t w 5 x 4) '(x 1 y nil z 3))
 ; (6 (nil nil t t w 5 x 4))
+
 ; user=> (evaluar-or '(or (setq b 8) nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3))
 ; (8 (nil nil t t w 5 x 4 b 8))
 ; user=> (evaluar-or '(or nil 6 nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3))
@@ -1009,9 +1027,21 @@
 ; (nil (nil nil t t w 5 x 4))
 
 
-(defn evaluar-or []
+(defn n-params [ult lista1 lista2]
+  (cond
+    (pertenece? lista1 ult) (list (nth lista1 (inc (index-of ult lista1))) lista1)
+    (pertenece? lista2 ult) (list (nth lista2 (inc (index-of ult lista2))) lista1)
+    (number? ult) (list ult lista1)
+    :else (list (list '*error* 'unbound-symbol ult) lista1)))
+
+(defn evaluar-or [condicion lista1 lista2]
   ;; "Evalua una forma 'or'. Devuelve una lista con el resultado y un ambiente."
-  (println "NOT IMPLEMENTED"))
+  (let [ult (nth condicion (dec (count condicion)))]
+    (cond
+      (= (count condicion) 1) (list nil lista1)
+      (= (count condicion) 2) (n-params ult lista1 lista2)
+      (>= (count condicion) 3) (n-params ult lista1 lista2)
+      :else true)))
 
 
 ; user=> (evaluar-setq '(setq) '(nil nil t t + add w 5 x 4) '(x 1 y nil z 3))
