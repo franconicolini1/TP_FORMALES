@@ -955,7 +955,6 @@
 ; (9 (nil nil t t v 1 w 3 x 6))
 ; user=> (evaluar-if '(if w 9) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola"))
 ; (9 (nil nil t t v 1 w 3 x 6))
-
 ; user=> (evaluar-if '(if r 9) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola"))
 ; ((*error* unbound-symbol r) (nil nil t t v 1 w 3 x 6))
 ; user=> (evaluar-if '(if nil 9) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola"))
@@ -994,10 +993,12 @@
 (defn checkearSiEstan [params params-aux lista1 lista2]
   ;; "Devuelve true si los parametros estan en la lista."
   (cond
-    (and (= (count params) 0) (pertenece? params-aux nil)) nil
-    (= (count params) 0) (getNumero params-aux)
+    (and (= (count params) 0) (= (count params-aux) 2) (pertenece? params-aux nil)) nil
+    (= (count params) 0) (getNumero (reverse params-aux))
     (and (= (count params) 1) (pertenece? lista2 (first params))) (nth lista2 (inc (index-of (first params) lista2)))
-    (and (not (number? (first params))) (not (pertenece? lista1 (first params))) (not (pertenece? lista2 (first params)))) (list '*error* 'unbound-symbol (first params))
+    (and (= (count params) 1) (pertenece? lista1 (first params))) (nth lista1 (inc (index-of (first params) lista1)))
+    (and (not (number? (first params))) (nil? (getNumero params)) (not (pertenece? lista1 (first params))) (not (pertenece? lista2 (first params)))) (list '*error* 'unbound-symbol (first params))
+    (and (not (number? (first params))) (= (count params-aux) 2) (not (pertenece? lista1 (first params))) (not (pertenece? lista2 (first params)))) (list '*error* 'unbound-symbol (first params))
     :else (checkearSiEstan (rest params) params-aux lista1 lista2)))
 
 (defn evaluar-if [condicion lista1 lista2]
