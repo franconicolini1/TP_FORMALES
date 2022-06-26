@@ -674,9 +674,11 @@
 
 (defn fnc-read [lista]
     ;; "Devuelve la lectura de un elemento de TLC-LISP desde la terminal/consola."
-  (cond
-    (> (count lista) 0) (list '*error* 'not-implemented)
-    :else (read)))
+  (let [leido (read)]
+    (cond
+      (> (count lista) 0) (list '*error* 'not-implemented)
+      (= () leido) nil
+      :else leido)))
 
 
 ; user=> (fnc-terpri ())

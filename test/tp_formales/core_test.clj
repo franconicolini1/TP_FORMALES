@@ -367,10 +367,10 @@
     (is
      (= (with-in-str "(hola mundo)" (fnc-read ())) (list 'hola 'mundo)))))
 
-;; (deftest fnc-read-con-salto-de-linea
-;;   (testing "Controlar (hola \nmundo))"
-;;     (is
-;;      (= (with-in-str ? (fnc-read ())) (list 'hola 'mundo)))))
+(deftest fnc-read-con-salto-de-linea
+  (testing "Controlar (hola \nmundo))"
+    (is
+     (= (with-in-str "(hola " (fnc-read ())) (list 'hola 'mundo)))))
 
 (deftest fnc-read-vacio
   (testing "Controlar ()"
@@ -385,12 +385,12 @@
 (deftest fnc-read-one-arg
   (testing "Controlar '(1)"
     (is
-     (= (fnc-read '(1)) (list '*error* 'not-implemented)))))
+     (= (with-in-str "s" (fnc-read '(1))) (list '*error* 'not-implemented)))))
 
 (deftest fnc-read-dos-args
   (testing "Controlar '(1 2)"
     (is
-     (= (fnc-read '(1 2)) (list '*error* 'not-implemented)))))
+     (= (with-in-str "a" (fnc-read '(1 2))) (list '*error* 'not-implemented)))))
 
 (deftest fnc-terpri-sin-args
   (testing "Controlar ()"
