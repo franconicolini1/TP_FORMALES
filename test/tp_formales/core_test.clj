@@ -350,37 +350,37 @@
 (deftest fnc-read-numero
   (testing "Controlar 1"
     (is
-     (= (fnc-read ()) 1))))
+     (= (with-in-str "1" (fnc-read ())) 1))))
 
 (deftest fnc-read-symbol
   (testing "Controlar a"
     (is
-     (= (fnc-read ()) 'a))))
+     (= (with-in-str "a" (fnc-read ())) 'a))))
 
 (deftest fnc-read-string
   (testing "Controlar 'hola'"
     (is
-     (= (fnc-read ()) "hola"))))
+     (= (with-in-str "\"hola\"" (fnc-read ())) "hola"))))
 
 (deftest fnc-read-string-con-parentesis
   (testing "Controlar (hola mundo)"
     (is
-     (= (fnc-read ()) (list 'hola 'mundo)))))
+     (= (with-in-str "(hola mundo)" (fnc-read ())) (list 'hola 'mundo)))))
 
-(deftest fnc-read-con-salto-de-linea
-  (testing "Controlar (hola \nmundo))"
-    (is
-     (= (fnc-read ()) (list 'hola 'mundo)))))
+;; (deftest fnc-read-con-salto-de-linea
+;;   (testing "Controlar (hola \nmundo))"
+;;     (is
+;;      (= (with-in-str ? (fnc-read ())) (list 'hola 'mundo)))))
 
 (deftest fnc-read-vacio
-  (testing "Controlar vacio"
+  (testing "Controlar ()"
     (is
-     (= (fnc-read ()) nil))))
+     (= (with-in-str "()" (fnc-read ())) nil))))
 
 (deftest fnc-read-nil
   (testing "Controlar nil"
     (is
-     (= (fnc-read ()) nil))))
+     (= (with-in-str "nil" (fnc-read ())) nil))))
 
 (deftest fnc-read-one-arg
   (testing "Controlar '(1)"
