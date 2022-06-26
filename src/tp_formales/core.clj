@@ -1062,7 +1062,6 @@
 ; (7 (nil nil t t + add w 5 x 7))
 ; user=> (evaluar-setq '(setq x (+ x 1)) '(nil nil t t + add w 5 x 4) '(x 1 y nil z 3))
 ; (2 (nil nil t t + add w 5 x 2))
-
 ; user=> (evaluar-setq '(setq x (+ x 1)) '(nil nil t t + add w 5 x 4) '(y nil z 3))
 ; (5 (nil nil t t + add w 5 x 5))
 ; user=> (evaluar-setq '(setq nil) '(nil nil t t + add w 5 x 4) '(x 1 y nil z 3))
@@ -1071,10 +1070,12 @@
 ; ((*error* cannot-set nil) (nil nil t t + add w 5 x 4))
 ; user=> (evaluar-setq '(setq 7 8) '(nil nil t t + add w 5 x 4) '(x 1 y nil z 3))
 ; ((*error* symbol expected 7) (nil nil t t + add w 5 x 4))
+
 ; user=> (evaluar-setq '(setq x 7 m (+ x 7)) '(nil nil t t + add w 5 x 4) '(x 1 y nil z 3))
 ; (8 (nil nil t t + add w 5 x 7 m 8))
 ; user=> (evaluar-setq '(setq x 7 m (+ x 7)) '(nil nil t t + add w 5 x 4) '(y nil z 3))
 ; (14 (nil nil t t + add w 5 x 7 m 14))
+
 ; user=> (evaluar-setq '(setq x 7 y) '(nil nil t t + add w 5 x 4) '(y nil z 3))
 ; ((*error* list expected nil) (nil nil t t + add w 5 x 7))
 ; user=> (evaluar-setq '(setq x 7 y 8 z 9) '(nil nil t t + add w 5 x 4) '(y nil z 3))
@@ -1089,13 +1090,23 @@
     (pertenece? lista (first condicion)) (replace-in-list lista (inc (index-of (first condicion) lista)) (second condicion))
     :else (concat lista condicion)))
 
+(defn n-params-setq [condicion lista1 lista2]
+  (let [evaluacion (first (evaluar (second condicion) lista1 lista2))]
+    (cond
+      (= 1 (rem (count condicion) 2)) (list (list '*error* 'list 'expected nil) lista1) ; Numero impar de parametros en condicion.
+      (= (count condicion) 2) (list evaluacion (reemplazarOAgregar (list (first condicion) evaluacion) lista1))
+      :else (n-params-setq (rest (rest condicion)) (reemplazarOAgregar (list (first condicion) evaluacion) lista1) lista2))))
+
 (defn evaluar-setq [condicion lista1 lista2]
   ;; "Evalua una forma 'setq'. Devuelve una lista con el resultado y un ambiente actualizado."
   (cond
     (< (count condicion) 3) (list (list '*error* 'list 'expected nil) lista1)
+    (and (= (count condicion) 3) (nil? (second condicion))) (list (list '*error* 'cannot-set nil) lista1)
+    (and (= (count condicion) 3) (not (simple-symbol? (second condicion)))) (list (list '*error* 'symbol 'expected (second condicion)) lista1)
     (and (= (count condicion) 3) (number? (nth condicion 2))) (list (nth condicion 2) (reemplazarOAgregar (rest condicion) lista1))
-    (and (= (count condicion) 3) (list? (nth condicion 2))) (concat (evaluar (nth condicion 2) lista1 lista2)
-                                                                    (reemplazarOAgregar (list (second condicion) (first (evaluar (nth condicion 2) lista1 lista2))) lista1))))
+    (and (= (count condicion) 3) (list? (nth condicion 2))) (list (first (evaluar (nth condicion 2) lista1 lista2))
+                                                                  (reemplazarOAgregar (list (second condicion) (first (evaluar (nth condicion 2) lista1 lista2))) lista1))
+    :else (n-params-setq (rest condicion) lista1 lista2)))
 
 
 ; Al terminar de cargar el archivo en el REPL de Clojure (con load-file), se debe devolver true.
