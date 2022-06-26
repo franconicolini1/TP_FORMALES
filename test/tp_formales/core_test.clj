@@ -347,66 +347,40 @@
     (is
      (= (fnc-equal '(A a A)) '(*error* too-many-args)))))
 
+(deftest fnc-read-numero
+  (testing "Controlar 1"
+    (is
+     (= (fnc-read ()) 1))))
 
+(deftest fnc-read-symbol
+  (testing "Controlar a"
+    (is
+     (= (fnc-read ()) 'a))))
 
-    ; user=> (fnc-read ())
-; 1
-; user=> (fnc-read ())
-; a
-; a
-; user=> (fnc-read ())
-; "hola"
-; "hola"
-; user=> (fnc-read ())
-; (hola mundo)
-; (hola mundo)
-; user=> (fnc-read ())
-; (hola
-; mundo)
-; (hola mundo)
-; user=> (fnc-read ())
-; ()
-; nil
-; user=> (fnc-read ())
-; nil
-; nil
+(deftest fnc-read-string
+  (testing "Controlar 'hola'"
+    (is
+     (= (fnc-read ()) "hola"))))
 
+(deftest fnc-read-string-con-parentesis
+  (testing "Controlar (hola mundo)"
+    (is
+     (= (fnc-read ()) (list 'hola 'mundo)))))
 
-;; (deftest fnc-read-numero
-;;   (testing "Controlar 1"
-;;     (is
-;;      (= (fnc-read ()) 1))))
+(deftest fnc-read-con-salto-de-linea
+  (testing "Controlar (hola \nmundo))"
+    (is
+     (= (fnc-read ()) (list 'hola 'mundo)))))
 
-;; (deftest fnc-read-dos-args
-;;   (testing "Controlar '(1 2)"
-;;     (is
-;;      (= (fnc-read '(1 2)) (list '*error* 'not-implemented)))))
+(deftest fnc-read-vacio
+  (testing "Controlar vacio"
+    (is
+     (= (fnc-read ()) nil))))
 
-;; (deftest fnc-read-one-arg
-;;   (testing "Controlar '(1)"
-;;     (is
-;;      (= (fnc-read '(1)) (list '*error* 'not-implemented)))))
-
-;; (deftest fnc-read-dos-args
-;;   (testing "Controlar '(1 2)"
-;;     (is
-;;      (= (fnc-read '(1 2)) (list '*error* 'not-implemented)))))
-
-;; (deftest fnc-read-one-arg
-;;   (testing "Controlar '(1)"
-;;     (is
-;;      (= (fnc-read '(1)) (list '*error* 'not-implemented)))))
-
-;; (deftest fnc-read-dos-args
-;;   (testing "Controlar '(1 2)"
-;;     (is
-;;      (= (fnc-read '(1 2)) (list '*error* 'not-implemented)))))
-
-;; (deftest fnc-read-one-arg
-;;   (testing "Controlar '(1)"
-;;     (is
-;;      (= (fnc-read '(1)) (list '*error* 'not-implemented)))))
-
+(deftest fnc-read-nil
+  (testing "Controlar nil"
+    (is
+     (= (fnc-read ()) nil))))
 
 (deftest fnc-read-one-arg
   (testing "Controlar '(1)"
