@@ -1070,12 +1070,10 @@
 ; ((*error* cannot-set nil) (nil nil t t + add w 5 x 4))
 ; user=> (evaluar-setq '(setq 7 8) '(nil nil t t + add w 5 x 4) '(x 1 y nil z 3))
 ; ((*error* symbol expected 7) (nil nil t t + add w 5 x 4))
-
 ; user=> (evaluar-setq '(setq x 7 m (+ x 7)) '(nil nil t t + add w 5 x 4) '(x 1 y nil z 3))
 ; (8 (nil nil t t + add w 5 x 7 m 8))
 ; user=> (evaluar-setq '(setq x 7 m (+ x 7)) '(nil nil t t + add w 5 x 4) '(y nil z 3))
 ; (14 (nil nil t t + add w 5 x 7 m 14))
-
 ; user=> (evaluar-setq '(setq x 7 y) '(nil nil t t + add w 5 x 4) '(y nil z 3))
 ; ((*error* list expected nil) (nil nil t t + add w 5 x 7))
 ; user=> (evaluar-setq '(setq x 7 y 8 z 9) '(nil nil t t + add w 5 x 4) '(y nil z 3))
@@ -1093,7 +1091,7 @@
 (defn n-params-setq [condicion lista1 lista2]
   (let [evaluacion (first (evaluar (second condicion) lista1 lista2))]
     (cond
-      (= 1 (rem (count condicion) 2)) (list (list '*error* 'list 'expected nil) lista1) ; Numero impar de parametros en condicion.
+      (= (count condicion) 1) (list (list '*error* 'list 'expected nil) lista1)
       (= (count condicion) 2) (list evaluacion (reemplazarOAgregar (list (first condicion) evaluacion) lista1))
       :else (n-params-setq (rest (rest condicion)) (reemplazarOAgregar (list (first condicion) evaluacion) lista1) lista2))))
 
