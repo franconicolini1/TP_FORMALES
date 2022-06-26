@@ -692,8 +692,7 @@
   ;; "Imprime un salto de línea y devuelve nil."
   (cond
     (and (list? lista) (> (count lista) 0)) (list '*error* 'not-implemented)
-    :else (println "\n"))
-  nil)
+    :else (println "\n")))
 
 
 ; user=> (fnc-add ())
