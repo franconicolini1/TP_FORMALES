@@ -138,7 +138,7 @@
       (igual? (first expre) 'reverse) (fnc-reverse expre)
       (igual? (first expre) 'append)  (fnc-append expre)
       (igual? (first expre) 'terpri)  (fnc-terpri expre)
-      (igual? (first expre) 'add)     (fnc-add expre)
+      (igual? (first expre) 'add)     (fnc-add expre) ; DE ESTA PARA ABAJO NO SE SI HACEN FALTA
       (igual? (first expre) 'sub)     (fnc-sub expre)
       (igual? (first expre) 'equal)   (fnc-equal expre)
       (igual? (first expre) 'lt)      (fnc-lt expre)
@@ -284,6 +284,11 @@
   [fnc lae amb-global amb-local]
   (cond
     (igual? fnc 'add)     (fnc-add lae)
+    (igual? fnc 'sub)     (fnc-sub lae)
+    (igual? fnc 'equal)   (fnc-equal lae)
+    (igual? fnc 'lt)      (fnc-lt lae)
+    (igual? fnc 'gt)      (fnc-gt lae)
+    (igual? fnc 'ge)      (fnc-ge lae)
 
     ; Las funciones primitivas reciben argumentos y retornan un valor (son puras)
 
