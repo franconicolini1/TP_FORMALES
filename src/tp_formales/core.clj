@@ -690,7 +690,9 @@
 
 (defn fnc-terpri [lista]
   ;; "Imprime un salto de línea y devuelve nil."
-  (if (and (list? lista) (> (count lista) 0)) (list '*error* 'not-implemented) (println "\n"))
+  (cond
+    (and (list? lista) (> (count lista) 0)) (list '*error* 'not-implemented)
+    :else (println "\n"))
   nil)
 
 
@@ -926,6 +928,9 @@
 ; ((*error* cannot-set nil) (x 1))
 
 
+(defn getRest [lista]
+  (concat (list (nth lista 2)) (rest (rest (rest lista)))))
+
 (defn evaluar-de [lista1 lista2]
   ;; "Evalua una forma 'de'. Devuelve una lista con el resultado y un ambiente actualizado con la definicion."
   (cond
@@ -933,7 +938,7 @@
     (nil? (second lista1)) (list (list '*error* 'cannot-set nil) lista2)
     (not (list? (nth lista1 2))) (list (list '*error* 'list 'expected (nth lista1 2)) lista2)
     (not (simple-symbol? (second lista1))) (list (list '*error* 'symbol 'expected (second lista1)) lista2)
-    :else (list (second lista1) (concat (flatten (list lista2 (second lista1))) (list (list 'lambda (nth lista1 2)))))))
+    :else (list (second lista1) (concat (flatten (list lista2 (second lista1))) (list (concat (list 'lambda) (getRest lista1)))))))
 
 ; user=> (evaluar-if '(if t) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola"))
 ; (nil (nil nil t t v 1 w 3 x 6))

@@ -670,27 +670,27 @@
 (deftest evaluar-de-un-parametros
   (testing "Controlar '(de f (x)) '(x 1)"
     (is
-     (= (evaluar-de '(de f '(x)) '(x 1)) (list 'f (list 'x 1 'f '(lambda '(x))))))))
+     (= (evaluar-de '(de f (x)) '(x 1)) (list 'f (list 'x 1 'f '(lambda (x))))))))
 
-;; (deftest evaluar-de-dos-parametros
-;;   (testing "Controlar '(de f (x) 2) '(x 1)"
-;;     (is
-;;      (= (evaluar-de '(de f '(x) 2) '(x 1)) '(f '(x 1 f '(lambda '(x) 2)))))))
+(deftest evaluar-de-dos-parametros
+  (testing "Controlar '(de f (x) 2) '(x 1)"
+    (is
+     (= (evaluar-de '(de f (x) 2) '(x 1)) (list 'f (list 'x 1 'f '(lambda (x) 2)))))))
 
-;; (deftest evaluar-de-suma
-;;   (testing "Controlar '(de f (x) (+ x 1)) '(x 1)"
-;;     (is
-;;      (= (evaluar-de '(de f '(x) '(+ x 1)) '(x 1)) '(f '(x 1 f '(lambda '(x) '(+ x 1))))))))
+(deftest evaluar-de-suma
+  (testing "Controlar '(de f (x) (+ x 1)) '(x 1)"
+    (is
+     (= (evaluar-de '(de f (x) (+ x 1)) '(x 1)) (list 'f (list 'x 1 'f '(lambda (x) (+ x 1))))))))
 
-;; (deftest evaluar-de-simple-suma
-;;   (testing "Controlar '(de f (x y) (+ x y)) '(x 1)"
-;;     (is
-;;      (= (evaluar-de '(de f (x y) (+ x y)) '(x 1)) '(f '(x 1 f '(lambda '(x y) '(+ x y))))))))
+(deftest evaluar-de-simple-suma
+  (testing "Controlar '(de f (x y) (+ x y)) '(x 1)"
+    (is
+     (= (evaluar-de '(de f (x y) (+ x y)) '(x 1)) (list 'f (list 'x 1 'f (list 'lambda '(x y) '(+ x y))))))))
 
-;; (deftest evaluar-de-varios-parametros
-;;   (testing "Controlar '(de f (x y) (prin3 x) (terpri) y) '(x 1)"
-;;     (is
-;;      (= (evaluar-de '(de f '(x y) '(prin3 x) '(terpri) y) '(x 1)) '(f '(x 1 f '(lambda '(x y) '(prin3 x) '(terpri) y)))))))
+(deftest evaluar-de-varios-parametros
+  (testing "Controlar '(de f (x y) (prin3 x) (terpri) y) '(x 1)"
+    (is
+     (= (evaluar-de '(de f (x y) (prin3 x) (terpri) y) '(x 1)) (list 'f (list 'x 1 'f (list 'lambda '(x y) '(prin3 x) '(terpri) 'y)))))))
 
 (deftest evaluar-de-sin-funcion-ni-lista-de-parametros
   (testing "Controlar '(de) '(x 1)"
