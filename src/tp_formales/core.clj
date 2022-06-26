@@ -114,8 +114,36 @@
     (cond
       (not (seq? expre))             (evaluar-escalar expre amb-global amb-local)
 
-      (igual? (first expre) 'cond)   (evaluar-cond expre amb-global amb-local)
-      (igual? (first expre) 'de)     (evaluar-de expre amb-global)
+      (igual? (first expre) 'cond)    (evaluar-cond expre amb-global amb-local)
+      (igual? (first expre) 'if)      (evaluar-if expre amb-global amb-local)
+      (igual? (first expre) 'or)      (evaluar-or expre amb-global amb-local)
+      (igual? (first expre) 'eval)    (evaluar-eval expre amb-global amb-local)
+      (igual? (first expre) 'exit)    (evaluar-exit expre amb-global amb-local)
+      (igual? (first expre) 'load)    (evaluar-load expre amb-global amb-local)
+      (igual? (first expre) 'setq)    (evaluar-setq expre amb-global amb-local)
+      (igual? (first expre) 'quote)   (evaluar-quote expre amb-global amb-local)
+      (igual? (first expre) 'lambda)  (evaluar-lambda expre amb-global amb-local)
+      (igual? (first expre) 'env)     (fnc-env expre amb-global amb-local)
+      (igual? (first expre) 'de)      (evaluar-de expre amb-global)
+      (igual? (first expre) 'not)     (fnc-not expre)
+      (igual? (first expre) 'cons)    (fnc-cons expre)
+      (igual? (first expre) 'list)    (fnc-list expre)
+      (igual? (first expre) 'listp)   (fnc-listp expre)
+      (igual? (first expre) 'prin3)   (fnc-prin3 expre)
+      (igual? (first expre) 'null)    (fnc-null expre)
+      (igual? (first expre) 'read)    (fnc-read expre)
+      (igual? (first expre) 'rest)    (fnc-rest expre)
+      (igual? (first expre) 'first)   (fnc-first expre)
+      (igual? (first expre) 'length)  (fnc-length expre)
+      (igual? (first expre) 'reverse) (fnc-reverse expre)
+      (igual? (first expre) 'append)  (fnc-append expre)
+      (igual? (first expre) 'terpri)  (fnc-terpri expre)
+      (igual? (first expre) 'add)     (fnc-add expre)
+      (igual? (first expre) 'sub)     (fnc-sub expre)
+      (igual? (first expre) 'equal)   (fnc-equal expre)
+      (igual? (first expre) 'lt)      (fnc-lt expre)
+      (igual? (first expre) 'gt)      (fnc-gt expre)
+      (igual? (first expre) 'ge)      (fnc-ge expre)
 
          ;
          ;
@@ -598,13 +626,13 @@
 ; (*error* too-many-args)
 
 
-(defn fnc-env [ambiente1 ambiente2 ambiente3]
+(defn fnc-env [lista1 lista2 lista3]
     ;; "Devuelve la fusion de los ambientes global y local."
   (cond
-    (not (list? ambiente1)) (list '*error* 'list 'expected ambiente1)
-    (not (list? ambiente2)) (list '*error* 'list 'expected ambiente2)
-    (not (list? ambiente3)) (list '*error* 'list 'expected ambiente3)
-    (= (count ambiente1) 0) (concat ambiente2 ambiente3)
+    (not (list? lista1)) (list '*error* 'list 'expected lista1)
+    (not (list? lista2)) (list '*error* 'list 'expected lista2)
+    (not (list? lista3)) (list '*error* 'list 'expected lista3)
+    (= (count lista1) 0) (concat lista2 lista3)
     :else (list '*error* 'too-many-args)))
 
 
@@ -991,10 +1019,10 @@
     :else (pertenece? (rest lista) elemento)))
 
 (defn checkearSiEstan [params params-aux lista1 lista2]
-  ;; "Devuelve true si los parametros estan en la lista."
   (cond
     (and (= (count params) 0) (= (count params-aux) 2) (pertenece? params-aux nil)) nil
     (= (count params) 0) (getNumero (reverse params-aux))
+    ;; (list? (first params)) (evaluar)
     (and (= (count params) 1) (pertenece? lista2 (first params))) (nth lista2 (inc (index-of (first params) lista2)))
     (and (= (count params) 1) (pertenece? lista1 (first params))) (nth lista1 (inc (index-of (first params) lista1)))
     (and (not (number? (first params))) (nil? (getNumero params)) (not (pertenece? lista1 (first params))) (not (pertenece? lista2 (first params)))) (list '*error* 'unbound-symbol (first params))
@@ -1005,17 +1033,8 @@
       ;; "Evalua una forma 'if'. Devuelve una lista con el resultado y un ambiente eventualmente modificado."
   (let [seg (second condicion)]
     (cond
-      (and (= (count condicion) 2) (number? (second condicion))) (list nil lista1)
-      (and (= (count condicion) 2) (pertenece? lista1 seg)) (list nil lista1) ; METER EL ORRRRRRRRRRRRRRRR
-      (not (nil? (getNumero condicion))) (list (checkearSiEstan (rest condicion) (rest condicion) lista1 lista2) lista1)
-      ;; (and (= (count condicion) 3) (or (pertenece? lista1 seg) (pertenece? lista2 seg))) (list (nth condicion 2) lista1)
-      ;; (and (= (count condicion) 3) (and (not (pertenece? lista1 seg)) (not (pertenece? lista2 seg)))) (list (list '*error* 'unbound-symbol seg) lista1)
-      ;; (> (count condicion) 3) (cond
-      ;;                           (not (nil? (index-of (nth condicion (dec (count condicion))) lista2))) (list (nth lista2 (inc (index-of (nth condicion (dec (count condicion))) lista2))) lista1)
-      ;;                           (not (nil? (index-of (nth condicion (dec (count condicion))) lista1))) (list (nth lista1 (inc (index-of (nth condicion (dec (count condicion))) lista1))) lista1)
-      ;;                           :else (list (nth condicion 3) lista1))
-
-      :else nil)))
+      (and (= (count condicion) 2) (or (pertenece? lista1 seg) (number? (second condicion)))) (list nil lista1)
+      :else (list (checkearSiEstan (rest condicion) (rest condicion) lista1 lista2) lista1))))
 
 
 ; user=> (evaluar-or '(or) '(nil nil t t w 5 x 4) '(x 1 y nil z 3))
@@ -1059,7 +1078,7 @@
   ;; "Evalua una forma 'or'. Devuelve una lista con el resultado y un ambiente."
   (cond
     (= (count condicion) 1) (list nil lista1)
-    (and (list? (second condicion)) (= (first (second (second condicion))) 'setq)) (evaluar-setq (second (second condicion)) lista1 lista2)
+    (and (list? (second condicion)) (= (first (second (second condicion))) 'setq)) (evaluar (second (second condicion)) lista1 lista2)
     (>= (count condicion) 2) (n-params-or (rest condicion) lista1 lista2)
     :else true))
 
