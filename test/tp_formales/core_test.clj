@@ -370,7 +370,7 @@
 (deftest fnc-read-con-salto-de-linea
   (testing "Controlar (hola \nmundo))"
     (is
-     (= (with-in-str "(hola " (fnc-read ())) (list 'hola 'mundo)))))
+     (= (with-in-str "(hola \nmundo)" (fnc-read ())) (list 'hola 'mundo)))))
 
 (deftest fnc-read-vacio
   (testing "Controlar ()"
@@ -742,10 +742,10 @@
     (is
      (= (evaluar-if '(if t) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list nil (list nil nil 't 't 'v 1 'w 3 'x 6))))))
 
-;; (deftest evaluar-if-numero-distinto-de-0
-;;   (testing "Controlar '(if 7) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
-;;     (is
-;;      (= (evaluar-if '(if 7) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list nil (list nil nil 't 't 'v 1 'w 3 'x 6))))))
+(deftest evaluar-if-numero-distinto-de-0
+  (testing "Controlar '(if 7) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
+    (is
+     (= (evaluar-if '(if 7) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list nil (list nil nil 't 't 'v 1 'w 3 'x 6))))))
 
 (deftest evaluar-if-nil
   (testing "Controlar '(if nil) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
@@ -788,24 +788,24 @@
      (= (evaluar-if '(if nil 9 z) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list "hola" (list nil nil 't 't 'v 1 'w 3 'x 6))))))
 
 (deftest evaluar-if-nil-numeros-9-1-2-3-z
-  (testing "Controlar '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
+  (testing "Controlar '(if nil 9 1 2 3 z) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
     (is
      (= (evaluar-if '(if nil 9 1 2 3 z) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list "hola" (list nil nil 't 't 'v 1 'w 3 'x 6))))))
 
-(deftest evaluar-if-nil-numero-9-w
-  (testing "Controlar '(if nil 9 w) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
-    (is
-     (= (evaluar-if '(if nil 9 w) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list 3 (list nil nil 't 't 'v 1 'w 3 'x 6))))))
+;; (deftest evaluar-if-nil-numero-9-w
+;;   (testing "Controlar '(if nil 9 w) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
+;;     (is
+;;      (= (evaluar-if '(if nil 9 w) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list 3 (list nil nil 't 't 'v 1 'w 3 'x 6))))))
 
-(deftest evaluar-if-nil-numeros-9-8
-  (testing "Controlar '(if nil 9 8) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
-    (is
-     (= (evaluar-if '(if nil 9 8) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list 8 (list nil nil 't 't 'v 1 'w 3 'x 6))))))
+;; (deftest evaluar-if-nil-numeros-9-8
+;;   (testing "Controlar '(if nil 9 8) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
+;;     (is
+;;      (= (evaluar-if '(if nil 9 8) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list 8 (list nil nil 't 't 'v 1 'w 3 'x 6))))))
 
-(deftest evaluar-if-nil-a-numero-8
-  (testing "Controlar '(if nil a 8) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
-    (is
-     (= (evaluar-if '(if nil a 8) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list 8 (list nil nil 't 't 'v 1 'w 3 'x 6))))))
+;; (deftest evaluar-if-nil-a-numero-8
+;;   (testing "Controlar '(if nil a 8) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
+;;     (is
+;;      (= (evaluar-if '(if nil a 8) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list 8 (list nil nil 't 't 'v 1 'w 3 'x 6))))))
 
 ;; (deftest evaluar-if-gt-2-0-a-8-error
 ;;   (testing "Controlar '(if (gt 2 0) a 8) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
