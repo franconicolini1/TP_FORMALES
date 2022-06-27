@@ -1,9 +1,6 @@
 (ns tp-formales.core
   (:gen-class))
 
-(defn -main [& args]
-  (println "Hello, World!"))
-
 (require '[clojure.string :refer [blank? ends-with? lower-case]] '[clojure.java.io :refer [reader]])
 
 (defn spy
@@ -69,6 +66,9 @@
 (declare evaluar-clausulas-en-cond)
 (declare evaluar-secuencia-en-cond)
 
+(defn -main [& args]
+  ;; "Llama a repl"
+  (repl))
 
 ; REPL (read–eval–print loop).
 ; Aridad 0: Muestra mensaje de bienvenida y se llama recursivamente con el ambiente inicial.
@@ -114,7 +114,7 @@
     (cond
       (not (seq? expre))             (evaluar-escalar expre amb-global amb-local)
 
-      (igual? (first expre) 'cond)    (evaluar-cond expre amb-global amb-local) ; ACA NO SE SI VAN LAS FORMAS ESPECIALES Y MACROS O SI VAN EN EL :ELSE
+      (igual? (first expre) 'cond)    (evaluar-cond expre amb-global amb-local)
       (igual? (first expre) 'if)      (evaluar-if expre amb-global amb-local)
       (igual? (first expre) 'or)      (evaluar-or expre amb-global amb-local)
       (igual? (first expre) 'eval)    (evaluar-eval expre amb-global amb-local)
@@ -125,19 +125,6 @@
       (igual? (first expre) 'lambda)  (evaluar-lambda expre amb-global amb-local)
       (igual? (first expre) 'env)     (fnc-env expre amb-global amb-local)
       (igual? (first expre) 'de)      (evaluar-de expre amb-global)
-      (igual? (first expre) 'not)     (fnc-not expre)
-      (igual? (first expre) 'cons)    (fnc-cons expre)
-      (igual? (first expre) 'list)    (fnc-list expre)
-      (igual? (first expre) 'listp)   (fnc-listp expre)
-      (igual? (first expre) 'prin3)   (fnc-prin3 expre)
-      (igual? (first expre) 'null)    (fnc-null expre)
-      (igual? (first expre) 'read)    (fnc-read expre)
-      (igual? (first expre) 'rest)    (fnc-rest expre)
-      (igual? (first expre) 'first)   (fnc-first expre)
-      (igual? (first expre) 'length)  (fnc-length expre)
-      (igual? (first expre) 'reverse) (fnc-reverse expre)
-      (igual? (first expre) 'append)  (fnc-append expre)
-      (igual? (first expre) 'terpri)  (fnc-terpri expre)
 
          ;
          ;
@@ -283,6 +270,19 @@
     (igual? fnc 'lt)      (fnc-lt lae)
     (igual? fnc 'gt)      (fnc-gt lae)
     (igual? fnc 'ge)      (fnc-ge lae)
+    (igual? fnc 'not)     (fnc-not lae)
+    (igual? fnc 'cons)    (fnc-cons lae)
+    (igual? fnc 'list)    (fnc-list lae)
+    (igual? fnc 'listp)   (fnc-listp lae)
+    (igual? fnc 'prin3)   (fnc-prin3 lae)
+    (igual? fnc 'null)    (fnc-null lae)
+    (igual? fnc 'read)    (fnc-read lae)
+    (igual? fnc 'rest)    (fnc-rest lae)
+    (igual? fnc 'first)   (fnc-first lae)
+    (igual? fnc 'length)  (fnc-length lae)
+    (igual? fnc 'reverse) (fnc-reverse lae)
+    (igual? fnc 'append)  (fnc-append lae)
+    (igual? fnc 'terpri)  (fnc-terpri lae)
 
     ; Las funciones primitivas reciben argumentos y retornan un valor (son puras)
 
@@ -444,18 +444,18 @@
 
 (defn toLowerSiSePuede [s]
   (cond
-    (or (string? s) (simple-symbol? s)) (clojure.string/lower-case s)
+    (or (string? s) (symbol? s)) (clojure.string/lower-case s)
     :else s))
 
 (defn igual? [elem1 elem2]
   ;; "Verifica la igualdad entre dos elementos al estilo de TLC-LISP (case-insensitive)."
   (cond
     (and (or (nil? elem1) (nil? elem2))
-         (or (and (simple-symbol? elem1) (= elem1 'NIL)) (and (simple-symbol? elem2) (= elem2 'NIL)))) true
+         (or (and (symbol? elem1) (= elem1 'NIL)) (and (symbol? elem2) (= elem2 'NIL)))) true
     (and (number? elem1) (number? elem2)) (= elem1 elem2)
     (and (string? elem1) (string? elem2)) (= elem1 elem2)
     (and (nil? elem1) (nil? elem2)) true
-    (and (simple-symbol? elem1) (simple-symbol? elem2)) (= (clojure.string/lower-case elem1) (clojure.string/lower-case elem2))
+    (and (symbol? elem1) (symbol? elem2)) (= (clojure.string/lower-case elem1) (clojure.string/lower-case elem2))
     (or (and (list? elem1) (empty? elem1) (= elem2 'NIL)) (and (list? elem2) (empty? elem2) (= elem1 'NIL))) true
     (and (list? elem1) (list? elem2)) (= (map toLowerSiSePuede elem1) (map toLowerSiSePuede elem2))
     :else false))
@@ -665,8 +665,8 @@
     (and (number? (first lista)) (number? (second lista))) (if (= (first lista) (second lista)) 't nil)
     (and (string? (first lista)) (string? (second lista))) (if (= (clojure.string/lower-case (first lista))
                                                                   (clojure.string/lower-case (second lista))) 't nil)
-    (and (simple-symbol? (first lista)) (simple-symbol? (second lista))) (if (= (clojure.string/lower-case (first lista))
-                                                                                (clojure.string/lower-case (second lista))) 't nil)
+    (and (symbol? (first lista)) (symbol? (second lista))) (if (= (clojure.string/lower-case (first lista))
+                                                                  (clojure.string/lower-case (second lista))) 't nil)
     (and (nil? (first lista)) (nil? (second lista))) 't
     (or (and (nil? (first lista)) (= (second lista) 'NIL)) (and (nil? (second lista)) (= (first lista) 'NIL))) 't
     :else nil))
@@ -921,7 +921,7 @@
   (let [index1 (index-of (symbol (clojure.string/lower-case e)) lista1)
         index2 (index-of (symbol (clojure.string/lower-case e)) lista2)]
     (cond
-      (and (nil? index1) (nil? index2) (not (simple-symbol? e))) (list e lista1)
+      (and (nil? index1) (nil? index2) (not (symbol? e))) (list e lista1)
       (and (nil? index1) (nil? index2)) (list (list '*error* 'unbound-symbol e) lista1)
       (and (not (nil? index1)) (not (nil? index2))) (list (nth lista2 (inc index2)) lista1)
       (nil? index1) (list (nth lista2 (inc index2)) lista1)
@@ -965,7 +965,7 @@
     (<= (count lista1) 2) (list (list '*error* 'list 'expected nil) lista2)
     (nil? (second lista1)) (list (list '*error* 'cannot-set nil) lista2)
     (not (list? (nth lista1 2))) (list (list '*error* 'list 'expected (nth lista1 2)) lista2)
-    (not (simple-symbol? (second lista1))) (list (list '*error* 'symbol 'expected (second lista1)) lista2)
+    (not (symbol? (second lista1))) (list (list '*error* 'symbol 'expected (second lista1)) lista2)
     :else (list (second lista1) (concat (flatten (list lista2 (second lista1))) (list (concat (list 'lambda) (getRest lista1)))))))
 
 ; user=> (evaluar-if '(if t) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola"))
@@ -1140,7 +1140,7 @@
   (cond
     (< (count condicion) 3) (list (list '*error* 'list 'expected nil) lista1)
     (and (= (count condicion) 3) (nil? (second condicion))) (list (list '*error* 'cannot-set nil) lista1)
-    (and (= (count condicion) 3) (not (simple-symbol? (second condicion)))) (list (list '*error* 'symbol 'expected (second condicion)) lista1)
+    (and (= (count condicion) 3) (not (symbol? (second condicion)))) (list (list '*error* 'symbol 'expected (second condicion)) lista1)
     (and (= (count condicion) 3) (number? (nth condicion 2))) (list (nth condicion 2) (reemplazarOAgregar (rest condicion) lista1))
     (and (= (count condicion) 3) (list? (nth condicion 2))) (list (first (evaluar (nth condicion 2) lista1 lista2))
                                                                   (reemplazarOAgregar (list (second condicion) (first (evaluar (nth condicion 2) lista1 lista2))) lista1))
@@ -1149,4 +1149,8 @@
 
 ; Al terminar de cargar el archivo en el REPL de Clojure (con load-file), se debe devolver true.
 
+
+(defn devolver-true [] true)
+
+(devolver-true)
 
