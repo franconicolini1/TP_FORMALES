@@ -967,7 +967,7 @@
     (nil? (second lista1)) (list (list '*error* 'cannot-set nil) lista2)
     (not (list? (nth lista1 2))) (list (list '*error* 'list 'expected (nth lista1 2)) lista2)
     (not (symbol? (second lista1))) (list (list '*error* 'symbol 'expected (second lista1)) lista2)
-    :else (list (second lista1) (concat (flatten (list lista2 (second lista1))) (list (concat (list 'lambda) (getRest lista1)))))))
+    :else (list (second lista1) (concat (concat lista2 (list (second lista1))) (list (concat (list 'lambda) (getRest lista1)))))))
 
 ; user=> (evaluar-if '(if t) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola"))
 ; (nil (nil nil t t v 1 w 3 x 6))
