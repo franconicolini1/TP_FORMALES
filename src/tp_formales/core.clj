@@ -444,7 +444,8 @@
 
 (defn toLowerSiSePuede [s]
   (cond
-    (or (string? s) (symbol? s)) (clojure.string/lower-case s)
+    (string? s) (clojure.string/lower-case s)
+    (symbol? s) (symbol (clojure.string/lower-case s))
     :else s))
 
 (defn igual? [elem1 elem2]
@@ -1132,25 +1133,22 @@
   (let [evaluacion (first (evaluar (second condicion) lista1 lista2))]
     (cond
       (= (count condicion) 1) (list (list '*error* 'list 'expected nil) lista1)
+      (nil? (first condicion)) (list (list '*error* 'cannot-set nil) lista1)
+      (not (symbol? (first condicion))) (list (list '*error* 'symbol 'expected (first condicion)) lista1)
+      (and (= (count condicion) 2) (not (list? (second condicion)))) (list evaluacion (reemplazarOAgregar (list (first condicion) (second condicion)) lista1))
       (= (count condicion) 2) (list evaluacion (reemplazarOAgregar (list (first condicion) evaluacion) lista1))
-      :else (n-params-setq (rest (rest condicion)) (reemplazarOAgregar (list (first condicion) evaluacion) lista1) lista2))))
+      (list? (second condicion)) (n-params-setq (rest (rest condicion)) (reemplazarOAgregar (list (first condicion) evaluacion) lista1) lista2)
+      :else (n-params-setq (rest (rest condicion)) (reemplazarOAgregar (list (first condicion) (second condicion)) lista1) lista2))))
 
 (defn evaluar-setq [condicion lista1 lista2]
   ;; "Evalua una forma 'setq'. Devuelve una lista con el resultado y un ambiente actualizado."
-  (cond
-    (< (count condicion) 3) (list (list '*error* 'list 'expected nil) lista1)
-    (and (= (count condicion) 3) (nil? (second condicion))) (list (list '*error* 'cannot-set nil) lista1)
-    (and (= (count condicion) 3) (not (symbol? (second condicion)))) (list (list '*error* 'symbol 'expected (second condicion)) lista1)
-    (and (= (count condicion) 3) (number? (nth condicion 2))) (list (nth condicion 2) (reemplazarOAgregar (rest condicion) lista1))
-    (and (= (count condicion) 3) (list? (nth condicion 2))) (list (first (evaluar (nth condicion 2) lista1 lista2))
-                                                                  (reemplazarOAgregar (list (second condicion) (first (evaluar (nth condicion 2) lista1 lista2))) lista1))
-    :else (n-params-setq (rest condicion) lista1 lista2)))
-
+  (let [seg (toLowerSiSePuede (second condicion))]
+    (cond
+      (<= (count condicion) 2) (list (list '*error* 'list 'expected nil) lista1)
+      :else (n-params-setq (rest condicion) lista1 lista2))))
 
 ; Al terminar de cargar el archivo en el REPL de Clojure (con load-file), se debe devolver true.
-
 
 (defn devolver-true [] true)
 
 (devolver-true)
-
