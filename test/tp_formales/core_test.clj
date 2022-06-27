@@ -807,20 +807,20 @@
     (is
      (= (evaluar-if '(if nil a 8) '(nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list 8 (list nil nil 't 't 'v 1 'w 3 'x 6))))))
 
-;; (deftest evaluar-if-gt-2-0-a-8-error
-;;   (testing "Controlar '(if (gt 2 0) a 8) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
-;;     (is
-;;      (= (evaluar-if '(if (gt 2 0) a 8) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list (list '*error* 'unbound-symbol 'a) (list 'gt 'gt nil nil 't 't 'v 1 'w 3 'x 6))))))
+(deftest evaluar-if-gt-2-0-a-8-error
+  (testing "Controlar '(if (gt 2 0) a 8) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
+    (is
+     (= (evaluar-if '(if (gt 2 0) a 8) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list (list '*error* 'unbound-symbol 'a) (list 'gt 'gt nil nil 't 't 'v 1 'w 3 'x 6))))))
 
-;; (deftest evaluar-if-gt-2-0-a-8-success
-;;   (testing "Controlar '(if (gt 0 2) a 8) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
-;;     (is
-;;      (= (evaluar-if '(if '(gt 0 2) a 8) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) '(8 '(gt gt nil nil t t v 1 w 3 x 6))))))
+(deftest evaluar-if-gt-2-0-a-8-success
+  (testing "Controlar '(if (gt 0 2) a 8) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
+    (is
+     (= (evaluar-if '(if (gt 0 2) a 8) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list 8 (list 'gt 'gt nil nil 't 't 'v 1 'w 3 'x 6))))))
 
-;; (deftest evaluar-if-nil-a-numero-8
-;;   (testing "Controlar '(if (gt 0 2) a (setq m 8)) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
-;;     (is
-;;      (= (evaluar-if '(if (gt 0 2) a (setq m 8)) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) '(8 '(gt gt nil nil t t v 1 w 3 x 6 m 8))))))
+(deftest evaluar-if-nil-a-numero-8
+  (testing "Controlar '(if (gt 0 2) a (setq m 8)) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
+    (is
+     (= (evaluar-if '(if (gt 0 2) a (setq m 8)) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list 8 (list 'gt 'gt nil nil 't 't 'v 1 'w 3 'x 6))))))
 
 (deftest evaluar-or-sin-params
   (testing "Controlar '(or) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"

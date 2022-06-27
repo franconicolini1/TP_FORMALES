@@ -138,12 +138,6 @@
       (igual? (first expre) 'reverse) (fnc-reverse expre)
       (igual? (first expre) 'append)  (fnc-append expre)
       (igual? (first expre) 'terpri)  (fnc-terpri expre)
-      (igual? (first expre) 'add)     (fnc-add expre) ; DE ESTA PARA ABAJO NO SE SI HACEN FALTA
-      (igual? (first expre) 'sub)     (fnc-sub expre)
-      (igual? (first expre) 'equal)   (fnc-equal expre)
-      (igual? (first expre) 'lt)      (fnc-lt expre)
-      (igual? (first expre) 'gt)      (fnc-gt expre)
-      (igual? (first expre) 'ge)      (fnc-ge expre)
 
          ;
          ;
@@ -1009,13 +1003,6 @@
 ; user=> (evaluar-if '(if (gt 0 2) a (setq m 8)) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola"))
 ; (8 (gt gt nil nil t t v 1 w 3 x 6 m 8))
 
-
-(defn getNumero [lista]
-  (cond
-    (= (count lista) 0) nil
-    (number? (first lista)) (first lista)
-    :else (getNumero (rest lista))))
-
 (defn pertenece? [lista elemento]
   ;; "Devuelve true si el elemento pertenece a la lista."
   (cond
@@ -1023,23 +1010,31 @@
     (= elemento (first lista)) true
     :else (pertenece? (rest lista) elemento)))
 
-(defn checkearSiEstan [params params-aux lista1 lista2]
+(defn obtener-n [lista n]
   (cond
-    (and (= (count params) 0) (= (count params-aux) 2) (pertenece? params-aux nil)) nil
-    (= (count params) 0) (getNumero (reverse params-aux))
-    ;; (list? (first params)) (evaluar)
-    (and (= (count params) 1) (pertenece? lista2 (first params))) (nth lista2 (inc (index-of (first params) lista2)))
-    (and (= (count params) 1) (pertenece? lista1 (first params))) (nth lista1 (inc (index-of (first params) lista1)))
-    (and (not (number? (first params))) (nil? (getNumero params)) (not (pertenece? lista1 (first params))) (not (pertenece? lista2 (first params)))) (list '*error* 'unbound-symbol (first params))
-    (and (not (number? (first params))) (= (count params-aux) 2) (not (pertenece? lista1 (first params))) (not (pertenece? lista2 (first params)))) (list '*error* 'unbound-symbol (first params))
-    :else (checkearSiEstan (rest params) params-aux lista1 lista2)))
+    (<= (count lista) n) nil
+    :else (nth lista n)))
 
 (defn evaluar-if [condicion lista1 lista2]
       ;; "Evalua una forma 'if'. Devuelve una lista con el resultado y un ambiente eventualmente modificado."
-  (let [seg (second condicion)]
+  (let [seg (obtener-n condicion 1)
+        ter (obtener-n condicion 2)
+        cuar (obtener-n condicion 3)
+        ult (obtener-n condicion (dec (count condicion)))]
+    (println condicion)
     (cond
-      (and (= (count condicion) 2) (or (pertenece? lista1 seg) (number? (second condicion)))) (list nil lista1)
-      :else (list (checkearSiEstan (rest condicion) (rest condicion) lista1 lista2) lista1))))
+      (list? seg) (evaluar-if (flatten (list 'if (list (first (evaluar seg lista1 lista2)) (rest (rest condicion))))) lista1 lista2)
+      (and (> (count condicion) 4) (nil? seg) (pertenece? lista2 ult)) (list (nth lista2 (inc (index-of ult lista2))) lista1)
+      (and (> (count condicion) 4) (nil? seg) (pertenece? lista1 ult)) (list (nth lista2 (inc (index-of ult lista1))) lista1)
+      (and (nil? seg) (pertenece? lista2 cuar)) (list (nth lista2 (inc (index-of cuar lista2))) lista1)
+      (and (nil? seg) (pertenece? lista1 cuar)) (list (nth lista1 (inc (index-of cuar lista1))) lista1)
+      (nil? seg) (list cuar lista1)
+      (number? seg) (list ter lista1)
+      (and (pertenece? lista2 seg) (not (nil? cuar))) (list (nth lista2 (inc (index-of cuar lista2))) lista1)
+      (and (pertenece? lista1 seg) (not (nil? cuar))) (list (nth lista1 (inc (index-of cuar lista1))) lista1)
+      (pertenece? lista2 seg) (list ter lista1)
+      (pertenece? lista1 seg) (list ter lista1)
+      :else (list (list '*error* 'unbound-symbol seg) lista1))))
 
 
 ; user=> (evaluar-or '(or) '(nil nil t t w 5 x 4) '(x 1 y nil z 3))
@@ -1069,6 +1064,12 @@
 ; user=> (evaluar-or '(or nil nil nil nil) '(nil nil t t w 5 x 4) '(x 1 y nil z 3))
 ; (nil (nil nil t t w 5 x 4))
 
+
+(defn getNumero [lista]
+  (cond
+    (= (count lista) 0) nil
+    (number? (first lista)) (first lista)
+    :else (getNumero (rest lista))))
 
 (defn n-params-or [params lista1 lista2]
   (cond
