@@ -1125,9 +1125,10 @@
   (concat (take indice lista) (list nuevo) (nthnext lista (inc indice))))
 
 (defn reemplazarOAgregar [condicion lista]
-  (cond
-    (pertenece? lista (first condicion)) (replace-in-list lista (inc (index-of (first condicion) lista)) (second condicion))
-    :else (concat lista condicion)))
+  (let [pri (toLowerSiSePuede (first condicion))]
+    (cond
+      (pertenece? lista pri) (replace-in-list lista (inc (index-of pri lista)) (second condicion))
+      :else (concat lista condicion))))
 
 (defn n-params-setq [condicion lista1 lista2]
   (let [evaluacion (first (evaluar (second condicion) lista1 lista2))]
@@ -1135,17 +1136,15 @@
       (= (count condicion) 1) (list (list '*error* 'list 'expected nil) lista1)
       (nil? (first condicion)) (list (list '*error* 'cannot-set nil) lista1)
       (not (symbol? (first condicion))) (list (list '*error* 'symbol 'expected (first condicion)) lista1)
-      (and (= (count condicion) 2) (not (list? (second condicion)))) (list evaluacion (reemplazarOAgregar (list (first condicion) (second condicion)) lista1))
       (= (count condicion) 2) (list evaluacion (reemplazarOAgregar (list (first condicion) evaluacion) lista1))
       (list? (second condicion)) (n-params-setq (rest (rest condicion)) (reemplazarOAgregar (list (first condicion) evaluacion) lista1) lista2)
       :else (n-params-setq (rest (rest condicion)) (reemplazarOAgregar (list (first condicion) (second condicion)) lista1) lista2))))
 
 (defn evaluar-setq [condicion lista1 lista2]
   ;; "Evalua una forma 'setq'. Devuelve una lista con el resultado y un ambiente actualizado."
-  (let [seg (toLowerSiSePuede (second condicion))]
-    (cond
-      (<= (count condicion) 2) (list (list '*error* 'list 'expected nil) lista1)
-      :else (n-params-setq (rest condicion) lista1 lista2))))
+  (cond
+    (<= (count condicion) 2) (list (list '*error* 'list 'expected nil) lista1)
+    :else (n-params-setq (rest condicion) lista1 lista2)))
 
 ; Al terminar de cargar el archivo en el REPL de Clojure (con load-file), se debe devolver true.
 
