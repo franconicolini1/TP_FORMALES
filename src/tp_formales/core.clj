@@ -123,7 +123,6 @@
       (igual? (first expre) 'setq)    (evaluar-setq expre amb-global amb-local)
       (igual? (first expre) 'quote)   (evaluar-quote expre amb-global amb-local)
       (igual? (first expre) 'lambda)  (evaluar-lambda expre amb-global amb-local)
-      (igual? (first expre) 'env)     (fnc-env expre amb-global amb-local)
       (igual? (first expre) 'de)      (evaluar-de expre amb-global)
 
          ;
@@ -283,6 +282,7 @@
     (igual? fnc 'reverse) (fnc-reverse lae)
     (igual? fnc 'append)  (fnc-append lae)
     (igual? fnc 'terpri)  (fnc-terpri lae)
+    (igual? fnc 'env)     (fnc-env lae amb-global amb-local)
 
     ; Las funciones primitivas reciben argumentos y retornan un valor (son puras)
 
@@ -381,6 +381,13 @@
 
 ; FUNCIONES QUE DEBEN SER IMPLEMENTADAS PARA COMPLETAR EL INTERPRETE DE TLC-LISP (ADEMAS DE COMPLETAR 'EVALUAR' Y 'APLICAR-FUNCION-PRIMITIVA'):
 
+
+(defn toLowerSiSePuede [s]
+  (cond
+    (string? s) (clojure.string/lower-case s)
+    (symbol? s) (symbol (clojure.string/lower-case s))
+    :else s))
+
 ; user=> (controlar-aridad '(a b c) 3)
 ; 3
 ; user=> (controlar-aridad '(a b c) 2)
@@ -442,12 +449,6 @@
 ; false
 
 
-(defn toLowerSiSePuede [s]
-  (cond
-    (string? s) (clojure.string/lower-case s)
-    (symbol? s) (symbol (clojure.string/lower-case s))
-    :else s))
-
 (defn igual? [elem1 elem2]
   ;; "Verifica la igualdad entre dos elementos al estilo de TLC-LISP (case-insensitive)."
   (cond
@@ -457,8 +458,8 @@
     (and (string? elem1) (string? elem2)) (= elem1 elem2)
     (and (nil? elem1) (nil? elem2)) true
     (and (symbol? elem1) (symbol? elem2)) (= (clojure.string/lower-case elem1) (clojure.string/lower-case elem2))
-    (or (and (list? elem1) (empty? elem1) (= elem2 'NIL)) (and (list? elem2) (empty? elem2) (= elem1 'NIL))) true
-    (and (list? elem1) (list? elem2)) (= (map toLowerSiSePuede elem1) (map toLowerSiSePuede elem2))
+    (or (and (seq? elem1) (empty? elem1) (= elem2 'NIL)) (and (seq? elem2) (empty? elem2) (= elem1 'NIL))) true
+    (and (seq? elem1) (seq? elem2)) (= (map toLowerSiSePuede elem1) (map toLowerSiSePuede elem2))
     :else false))
 
 
@@ -485,7 +486,7 @@
 (defn error? [lista]
   ;; "Devuelve true o false, segun sea o no el arg. un mensaje de error (una lista con *error* como primer elemento)."
   (cond
-    (not (list? lista)) false
+    (not (seq? lista)) false
     (= (count lista) 0) false
     (or (= '*error* (clojure.string/lower-case (first lista))) (= "*error*" (clojure.string/lower-case (first lista)))) true
     :else false))
@@ -530,13 +531,13 @@
 
 (defn esError-lae [lista]
   (cond
-    (and (list? lista) (> (count lista) 0) (or (= '*error* (first lista)) (= "*error*" (first lista)))) (list (first lista) (second lista))
+    (and (seq? lista) (> (count lista) 0) (or (= '*error* (first lista)) (= "*error*" (first lista)))) (list (first lista) (second lista))
     :else nil))
 
 (defn revisar-lae [matriz]
   ;; "Devuelve el primer elemento que es un mensaje de error. Si no hay ninguno, devuelve nil."
   (cond
-    (not (list? matriz)) nil
+    (not (seq? matriz)) nil
     :else (devolverPrimeroSiExiste (filter isNotNil? (map esError-lae matriz)))))
 
 
@@ -552,7 +553,7 @@
 
 (defn esError-amb [lista]
   (cond
-    (and (list? lista) (> (count lista) 0) (or (= '*error* (first lista)) (= "*error*" (first lista)))) true
+    (and (seq? lista) (> (count lista) 0) (or (= '*error* (first lista)) (= "*error*" (first lista)))) true
     :else nil))
 
 (defn index-of [e coll] (first (keep-indexed #(if (= e %2) %1) coll)))
@@ -583,9 +584,9 @@
   ;; "Busca una clave en un ambiente (una lista con claves en las posiciones impares [1, 3, 5...] y valores en las pares [2, 4, 6...]
   ;;  y devuelve el valor asociado. Devuelve un mensaje de error si no la encuentra."
   (cond
-    (not (list? lista)) (list '*error* 'unbound-symbol clave)
+    (not (seq? lista)) (list '*error* 'unbound-symbol clave)
     (= (count lista) 0) (list '*error* 'unbound-symbol clave)
-    (= clave (first lista)) (second lista)
+    (= (toLowerSiSePuede clave) (toLowerSiSePuede (first lista))) (second lista)
     :else (buscar clave (rest (rest lista)))))
 
 ; user=> (fnc-append '( (1 2) ))
@@ -612,11 +613,11 @@
     (< (count matriz) 2) (list '*error* 'too-few-args)
     (> (count matriz) 2) (list '*error* 'too-many-args)
     (and (nil? (first matriz)) (nil? (second matriz))) nil
-    (and (list? (first matriz)) (list? (second matriz)) (= (count (first matriz)) 0) (= (count (second matriz)) 0)) nil
-    (and (list? (first matriz)) (nil? (second matriz))) (first matriz)
-    (and (nil? (first matriz)) (list? (second matriz))) (second matriz)
-    (not (list? (first matriz))) (list '*error* 'list 'expected (first matriz))
-    (not (list? (second matriz))) (list '*error* 'list 'expected (second matriz))
+    (and (seq? (first matriz)) (seq? (second matriz)) (= (count (first matriz)) 0) (= (count (second matriz)) 0)) nil
+    (and (seq? (first matriz)) (nil? (second matriz))) (first matriz)
+    (and (nil? (first matriz)) (seq? (second matriz))) (second matriz)
+    (not (seq? (first matriz))) (list '*error* 'list 'expected (first matriz))
+    (not (seq? (second matriz))) (list '*error* 'list 'expected (second matriz))
     :else (concat (first matriz) (second matriz))))
 
 
@@ -629,9 +630,9 @@
 (defn fnc-env [lista1 lista2 lista3]
     ;; "Devuelve la fusion de los ambientes global y local."
   (cond
-    (not (list? lista1)) (list '*error* 'list 'expected lista1)
-    (not (list? lista2)) (list '*error* 'list 'expected lista2)
-    (not (list? lista3)) (list '*error* 'list 'expected lista3)
+    (not (seq? lista1)) (list '*error* 'list 'expected lista1)
+    (not (seq? lista2)) (list '*error* 'list 'expected lista2)
+    (not (seq? lista3)) (list '*error* 'list 'expected lista3)
     (= (count lista1) 0) (concat lista2 lista3)
     :else (list '*error* 'too-many-args)))
 
@@ -721,7 +722,7 @@
 (defn fnc-terpri [lista]
   ;; "Imprime un salto de línea y devuelve nil."
   (cond
-    (and (list? lista) (> (count lista) 0)) (list '*error* 'not-implemented)
+    (and (seq? lista) (> (count lista) 0)) (list '*error* 'not-implemented)
     :else (println "\n")))
 
 
@@ -897,7 +898,7 @@
   (cond
     (< (count matriz) 1) (list '*error* 'too-few-args)
     (> (count matriz) 1) (list '*error* 'too-many-args)
-    (not (list? (first matriz))) (list '*error* 'list 'expected (first matriz))
+    (not (seq? (first matriz))) (list '*error* 'list 'expected (first matriz))
     :else (reverse (first matriz))))
 
 
@@ -965,7 +966,7 @@
   (cond
     (<= (count lista1) 2) (list (list '*error* 'list 'expected nil) lista2)
     (nil? (second lista1)) (list (list '*error* 'cannot-set nil) lista2)
-    (not (list? (nth lista1 2))) (list (list '*error* 'list 'expected (nth lista1 2)) lista2)
+    (not (seq? (nth lista1 2))) (list (list '*error* 'list 'expected (nth lista1 2)) lista2)
     (not (symbol? (second lista1))) (list (list '*error* 'symbol 'expected (second lista1)) lista2)
     :else (list (second lista1) (concat (concat lista2 (list (second lista1))) (list (concat (list 'lambda) (getRest lista1)))))))
 
@@ -1004,6 +1005,7 @@
 ; user=> (evaluar-if '(if (gt 0 2) a (setq m 8)) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola"))
 ; (8 (gt gt nil nil t t v 1 w 3 x 6 m 8))
 
+
 (defn pertenece? [lista elemento]
   ;; "Devuelve true si el elemento pertenece a la lista."
   (cond
@@ -1024,9 +1026,9 @@
         ult (obtener-n condicion (dec (count condicion)))]
     (cond
       (nil? ter) (list nil lista1)
-      (list? seg) (evaluar-if (concat (list 'if) (concat (list (first (evaluar seg lista1 lista2))) (rest (rest condicion)))) lista1 lista2)
-      (list? ter) (evaluar-if (concat (list 'if) (concat (list (first (evaluar ter lista1 lista2))) (rest (rest (rest condicion))))) lista1 lista2)
-      (list? cuar) (evaluar-if (concat (list 'if) (concat (list (first (evaluar cuar lista1 lista2))) (rest (rest (rest (rest condicion)))))) lista1 lista2)
+      (seq? seg) (evaluar-if (concat (list 'if) (concat (list (first (evaluar seg lista1 lista2))) (rest (rest condicion)))) lista1 lista2)
+      (seq? ter) (evaluar-if (concat (list 'if) (concat (list (first (evaluar ter lista1 lista2))) (rest (rest (rest condicion))))) lista1 lista2)
+      (seq? cuar) (evaluar-if (concat (list 'if) (concat (list (first (evaluar cuar lista1 lista2))) (rest (rest (rest (rest condicion)))))) lista1 lista2)
       (and (>= (count condicion) 4) (nil? seg) (pertenece? lista2 ult)) (list (nth lista2 (inc (index-of ult lista2))) lista1)
       (and (>= (count condicion) 4) (nil? seg) (pertenece? lista1 ult)) (list (nth lista1 (inc (index-of ult lista1))) lista1)
       (nil? seg) (list cuar lista1)
@@ -1088,7 +1090,7 @@
   ;; "Evalua una forma 'or'. Devuelve una lista con el resultado y un ambiente."
   (cond
     (= (count condicion) 1) (list nil lista1)
-    (and (list? (second condicion)) (= (first (second (second condicion))) 'setq)) (evaluar (second (second condicion)) lista1 lista2)
+    (and (seq? (second condicion)) (= (first (second (second condicion))) 'setq)) (evaluar (second (second condicion)) lista1 lista2)
     (>= (count condicion) 2) (n-params-or (rest condicion) lista1 lista2)
     :else true))
 
@@ -1137,7 +1139,7 @@
       (nil? (first condicion)) (list (list '*error* 'cannot-set nil) lista1)
       (not (symbol? (first condicion))) (list (list '*error* 'symbol 'expected (first condicion)) lista1)
       (= (count condicion) 2) (list evaluacion (reemplazarOAgregar (list (first condicion) evaluacion) lista1))
-      (list? (second condicion)) (n-params-setq (rest (rest condicion)) (reemplazarOAgregar (list (first condicion) evaluacion) lista1) lista2)
+      (seq? (second condicion)) (n-params-setq (rest (rest condicion)) (reemplazarOAgregar (list (first condicion) evaluacion) lista1) lista2)
       :else (n-params-setq (rest (rest condicion)) (reemplazarOAgregar (list (first condicion) (second condicion)) lista1) lista2))))
 
 (defn evaluar-setq [condicion lista1 lista2]
