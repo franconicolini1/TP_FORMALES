@@ -556,7 +556,7 @@
     (and (seq? lista) (> (count lista) 0) (or (= '*error* (first lista)) (= "*error*" (first lista)))) true
     :else nil))
 
-(defn index-of [e coll] (first (keep-indexed #(if (= e %2) %1) coll)))
+(defn index-of [e coll] (first (keep-indexed #(if (= e (toLowerSiSePuede %2)) (toLowerSiSePuede %1)) coll)))
 
 (defn reemplazarValor [lista clave valor]
   (cond
@@ -586,7 +586,7 @@
   (cond
     (not (seq? lista)) (list '*error* 'unbound-symbol clave)
     (= (count lista) 0) (list '*error* 'unbound-symbol clave)
-    (= (toLowerSiSePuede clave) (toLowerSiSePuede (first lista))) (second lista)
+    (= clave (first lista)) (second lista)
     :else (buscar clave (rest (rest lista)))))
 
 ; user=> (fnc-append '( (1 2) ))
@@ -926,8 +926,8 @@
       (and (nil? index1) (nil? index2) (not (symbol? e))) (list e lista1)
       (and (nil? index1) (nil? index2)) (list (list '*error* 'unbound-symbol e) lista1)
       (and (not (nil? index1)) (not (nil? index2))) (list (nth lista2 (inc index2)) lista1)
-      (nil? index1) (list (nth lista2 (inc index2)) lista1)
-      :else (list (nth lista1 (inc index1)) lista1))))
+      (nil? index2) (list (nth lista1 (inc index1)) lista1)
+      :else (list (nth lista2 (inc index2)) lista1))))
 
 
 ; user=> (evaluar-de '(de f (x)) '(x 1))
