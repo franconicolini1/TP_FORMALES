@@ -1074,10 +1074,12 @@
   (let [enGlobal (buscar (first params) global)
         enLocal (buscar (first params) local)]
     (cond
+      (seq? (first params)) (n-params-or (concat (list (first (evaluar (second (first params)) global local))) (rest params))
+                                         (second (evaluar (second (first params)) global local)) local)
       (not (nil? (getNumero params))) (list (getNumero params) global)
+      (number? (first params)) (list (first params) global)
       (not (error? enGlobal)) (list enGlobal global)
       (not (error? enLocal)) (list enLocal global)
-      (number? (first params)) (list (first params) global)
       (> (count params) 1) (n-params-or (rest params) global local)
       :else (list (list '*error* 'unbound-symbol (first params)) global))))
 
@@ -1085,7 +1087,6 @@
   ;; "Evalua una forma 'or'. Devuelve una lista con el resultado y un ambiente."
   (cond
     (= (count condicion) 1) (list nil global)
-    (seq? (second condicion)) (evaluar (second (second condicion)) global local)
     :else (n-params-or (rest condicion) global local)))
 
 
