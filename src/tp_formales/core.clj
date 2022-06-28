@@ -555,7 +555,7 @@
 (defn reemplazarValor [lista clave valor]
   (cond
     (< (count lista) 2) lista
-    (= (first lista) clave) (concat (list clave valor) (reemplazarValor (rest (rest lista)) clave valor))
+    (= (toLowerSiSePuede (first lista)) (toLowerSiSePuede clave)) (concat (list (first lista) valor) (reemplazarValor (rest (rest lista)) clave valor))
     :else (concat (list (first lista) (second lista)) (reemplazarValor (rest (rest lista)) clave valor))))
 
 (defn actualizar-amb [lista clave valor]
@@ -585,13 +585,13 @@
 
 
 (defn get_clave [clave amb]
-  (get (zipmap (take-nth 2 amb) (take-nth 2 (rest amb))) clave (list '*error* 'unbound-symbol clave)))
+  (let [amb-aux (map toLowerSiSePuede amb)]
+    (get (zipmap (take-nth 2 amb-aux) (take-nth 2 (rest amb-aux))) clave (list '*error* 'unbound-symbol clave))))
 
 (defn buscar [clave amb]
   (cond
     (not (symbol? clave)) clave
     (not (error? (get_clave (toLowerSiSePuede clave) amb))) (get_clave (toLowerSiSePuede clave) amb)
-    (not (error? (get_clave clave amb))) (get_clave clave amb)
     :else (get_clave (toLowerSiSePuede clave) amb)))
 
 ; user=> (fnc-append '( (1 2) ))
@@ -1112,21 +1112,15 @@
 ; (9 (nil nil t t + add w 5 x 7 y 8 z 9))
 
 
-(defn reemplazarOAgregar [condicion lista]
-  (let [pri (toLowerSiSePuede (first condicion))]
-    (cond
-      (pertenece? lista pri) (reemplazarValor lista pri (second condicion))
-      :else (concat lista condicion))))
-
 (defn n-params-setq [condicion global local]
   (let [evaluacion (first (evaluar (second condicion) global local))]
     (cond
       (= (count condicion) 1) (list (list '*error* 'list 'expected nil) global)
       (nil? (first condicion)) (list (list '*error* 'cannot-set nil) global)
       (not (symbol? (first condicion))) (list (list '*error* 'symbol 'expected (first condicion)) global)
-      (= (count condicion) 2) (list evaluacion (reemplazarOAgregar (list (first condicion) evaluacion) global))
-      (seq? (second condicion)) (n-params-setq (rest (rest condicion)) (reemplazarOAgregar (list (first condicion) evaluacion) global) local)
-      :else (n-params-setq (rest (rest condicion)) (reemplazarOAgregar (list (first condicion) (second condicion)) global) local))))
+      (= (count condicion) 2) (list evaluacion (actualizar-amb global (first condicion) evaluacion))
+      (seq? (second condicion)) (n-params-setq (rest (rest condicion)) (actualizar-amb global (first condicion) evaluacion) local)
+      :else (n-params-setq (rest (rest condicion)) (actualizar-amb global (first condicion) (second condicion)) local))))
 
 (defn evaluar-setq [condicion global local]
   ;; "Evalua una forma 'setq'. Devuelve una lista con el resultado y un ambiente actualizado."

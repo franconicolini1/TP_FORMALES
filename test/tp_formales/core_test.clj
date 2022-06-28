@@ -237,6 +237,16 @@
     (is
      (= (actualizar-amb () 'b 7) '(b 7)))))
 
+(deftest actualizar-amb-upper-and-lower
+  (testing "Controlar () 'b 7"
+    (is
+     (= (actualizar-amb '(a 1 b 2 c 3) 'B 7) '(a 1 b 7 c 3)))))
+
+(deftest actualizar-amb-lower-and-upper
+  (testing "Controlar () 'b 7"
+    (is
+     (= (actualizar-amb '(a 1 B 2 c 3) 'b 7) '(a 1 B 7 c 3)))))
+
 (deftest buscar-valor-que-esta
   (testing "Controlar 'c '(a 1 b 2 c 3 d 4 e 5)"
     (is
