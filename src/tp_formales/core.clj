@@ -620,7 +620,7 @@
     (< (count matriz) 2) (list '*error* 'too-few-args)
     (> (count matriz) 2) (list '*error* 'too-many-args)
     (and (nil? (first matriz)) (nil? (second matriz))) nil
-    (and (seq? (first matriz)) (seq? (second matriz)) (= (count (first matriz)) 0) (= (count (second matriz)) 0)) nil
+    (and (seq? (first matriz)) (seq? (second matriz)) (empty? (first matriz)) (empty? (second matriz))) nil
     (and (seq? (first matriz)) (nil? (second matriz))) (first matriz)
     (and (nil? (first matriz)) (seq? (second matriz))) (second matriz)
     (not (seq? (first matriz))) (list '*error* 'list 'expected (first matriz))
@@ -637,9 +637,6 @@
 (defn fnc-env [lista1 global local]
     ;; "Devuelve la fusion de los ambientes global y local."
   (cond
-    (not (seq? lista1)) (list '*error* 'list 'expected lista1)
-    (not (seq? global)) (list '*error* 'list 'expected global)
-    (not (seq? local)) (list '*error* 'list 'expected local)
     (empty? lista1) (concat global local)
     :else (list '*error* 'too-many-args)))
 
@@ -1009,29 +1006,29 @@
     (<= (count lista) n) nil
     :else (nth lista n)))
 
-(defn evaluar-if [condicion lista1 lista2]
+(defn evaluar-if [condicion global local]
       ;; "Evalua una forma 'if'. Devuelve una lista con el resultado y un ambiente eventualmente modificado."
   (let [seg (obtener-n condicion 1)
         ter (obtener-n condicion 2)
         cuar (obtener-n condicion 3)
         ult (obtener-n condicion (dec (count condicion)))]
     (cond
-      (nil? ter) (list nil lista1)
-      (seq? seg) (evaluar-if (concat (list 'if) (concat (list (first (evaluar seg lista1 lista2))) (rest (rest condicion)))) lista1 lista2)
-      (seq? ter) (evaluar-if (concat (list 'if) (concat (list (first (evaluar ter lista1 lista2))) (rest (rest (rest condicion))))) lista1 lista2)
-      (seq? cuar) (evaluar-if (concat (list 'if) (concat (list (first (evaluar cuar lista1 lista2))) (rest (rest (rest (rest condicion)))))) lista1 lista2)
-      (and (>= (count condicion) 4) (nil? seg) (pertenece? lista2 ult)) (list (nth lista2 (inc (index-of ult lista2))) lista1)
-      (and (>= (count condicion) 4) (nil? seg) (pertenece? lista1 ult)) (list (nth lista1 (inc (index-of ult lista1))) lista1)
-      (nil? seg) (list cuar lista1)
-      (number? seg) (list ter lista1)
-      (and (not (nil? seg)) (or (pertenece? lista2 seg) (pertenece? lista1 seg)) (number? ter)) (list ter lista1)
-      (and (not (nil? seg)) (number? ter)) (list (list '*error* 'unbound-symbol seg) lista1)
-      (and (nil? seg) (number? cuar)) (list cuar lista1)
-      (and (not (nil? seg)) (not (nil? ter)) (pertenece? lista2 ter)) (list (nth lista2 (inc (index-of ter lista2))) lista1)
-      (and (not (nil? seg)) (not (nil? ter)) (pertenece? lista1 ter)) (list (nth lista1 (inc (index-of ter lista1))) lista1)
-      (and (not (nil? seg)) (not (pertenece? lista2 ter)) (not (pertenece? lista1 ter))) (list (list '*error* 'unbound-symbol ter) lista1)
-      (and (not (pertenece? lista1 cuar)) (not (pertenece? lista2 cuar))) (list (list '*error* 'unbound-symbol cuar) lista1)
-      :else (list (list '*error* 'unbound-symbol seg) lista1))))
+      (nil? ter) (list nil global)
+      (seq? seg) (evaluar-if (concat (list 'if) (concat (list (first (evaluar seg global local))) (rest (rest condicion)))) global local)
+      (seq? ter) (evaluar-if (concat (list 'if) (concat (list (first (evaluar ter global local))) (rest (rest (rest condicion))))) global local)
+      (seq? cuar) (evaluar-if (concat (list 'if) (concat (list (first (evaluar cuar global local))) (rest (rest (rest (rest condicion)))))) global local)
+      (and (>= (count condicion) 4) (nil? seg) (pertenece? local ult)) (list (nth local (inc (index-of ult local))) global)
+      (and (>= (count condicion) 4) (nil? seg) (pertenece? global ult)) (list (nth global (inc (index-of ult global))) global)
+      (nil? seg) (list cuar global)
+      (number? seg) (list ter global)
+      (and (not (nil? seg)) (or (pertenece? local seg) (pertenece? global seg)) (number? ter)) (list ter global)
+      (and (not (nil? seg)) (number? ter)) (list (list '*error* 'unbound-symbol seg) global)
+      (and (nil? seg) (number? cuar)) (list cuar global)
+      (and (not (nil? seg)) (not (nil? ter)) (pertenece? local ter)) (list (nth local (inc (index-of ter local))) global)
+      (and (not (nil? seg)) (not (nil? ter)) (pertenece? global ter)) (list (nth global (inc (index-of ter global))) global)
+      (and (not (nil? seg)) (not (pertenece? local ter)) (not (pertenece? global ter))) (list (list '*error* 'unbound-symbol ter) global)
+      (and (not (pertenece? global cuar)) (not (pertenece? local cuar))) (list (list '*error* 'unbound-symbol cuar) global)
+      :else (list (list '*error* 'unbound-symbol seg) global))))
 
 
 ; user=> (evaluar-or '(or) '(nil nil t t w 5 x 4) '(x 1 y nil z 3))
@@ -1115,30 +1112,27 @@
 ; (9 (nil nil t t + add w 5 x 7 y 8 z 9))
 
 
-(defn replace-in-list [lista indice nuevo]
-  (concat (take indice lista) (list nuevo) (nthnext lista (inc indice))))
-
 (defn reemplazarOAgregar [condicion lista]
   (let [pri (toLowerSiSePuede (first condicion))]
     (cond
-      (pertenece? lista pri) (replace-in-list lista (inc (index-of pri lista)) (second condicion))
+      (pertenece? lista pri) (reemplazarValor lista pri (second condicion))
       :else (concat lista condicion))))
 
-(defn n-params-setq [condicion lista1 lista2]
-  (let [evaluacion (first (evaluar (second condicion) lista1 lista2))]
+(defn n-params-setq [condicion global local]
+  (let [evaluacion (first (evaluar (second condicion) global local))]
     (cond
-      (= (count condicion) 1) (list (list '*error* 'list 'expected nil) lista1)
-      (nil? (first condicion)) (list (list '*error* 'cannot-set nil) lista1)
-      (not (symbol? (first condicion))) (list (list '*error* 'symbol 'expected (first condicion)) lista1)
-      (= (count condicion) 2) (list evaluacion (reemplazarOAgregar (list (first condicion) evaluacion) lista1))
-      (seq? (second condicion)) (n-params-setq (rest (rest condicion)) (reemplazarOAgregar (list (first condicion) evaluacion) lista1) lista2)
-      :else (n-params-setq (rest (rest condicion)) (reemplazarOAgregar (list (first condicion) (second condicion)) lista1) lista2))))
+      (= (count condicion) 1) (list (list '*error* 'list 'expected nil) global)
+      (nil? (first condicion)) (list (list '*error* 'cannot-set nil) global)
+      (not (symbol? (first condicion))) (list (list '*error* 'symbol 'expected (first condicion)) global)
+      (= (count condicion) 2) (list evaluacion (reemplazarOAgregar (list (first condicion) evaluacion) global))
+      (seq? (second condicion)) (n-params-setq (rest (rest condicion)) (reemplazarOAgregar (list (first condicion) evaluacion) global) local)
+      :else (n-params-setq (rest (rest condicion)) (reemplazarOAgregar (list (first condicion) (second condicion)) global) local))))
 
-(defn evaluar-setq [condicion lista1 lista2]
+(defn evaluar-setq [condicion global local]
   ;; "Evalua una forma 'setq'. Devuelve una lista con el resultado y un ambiente actualizado."
   (cond
-    (<= (count condicion) 2) (list (list '*error* 'list 'expected nil) lista1)
-    :else (n-params-setq (rest condicion) lista1 lista2)))
+    (<= (count condicion) 2) (list (list '*error* 'list 'expected nil) global)
+    :else (n-params-setq (rest condicion) global local)))
 
 ; Al terminar de cargar el archivo en el REPL de Clojure (con load-file), se debe devolver true.
 
