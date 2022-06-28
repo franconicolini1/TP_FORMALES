@@ -486,8 +486,7 @@
 (defn error? [lista]
   ;; "Devuelve true o false, segun sea o no el arg. un mensaje de error (una lista con *error* como primer elemento)."
   (cond
-    (not (seq? lista)) false
-    (= (count lista) 0) false
+    (or (not (seq? lista)) (empty? lista)) false
     (or (= '*error* (clojure.string/lower-case (first lista))) (= "*error*" (clojure.string/lower-case (first lista)))) true
     :else false))
 
@@ -531,7 +530,7 @@
 
 (defn esError-lae [lista]
   (cond
-    (and (seq? lista) (> (count lista) 0) (or (= '*error* (first lista)) (= "*error*" (first lista)))) (list (first lista) (second lista))
+    (and (seq? lista) (> (count lista) 0) (error? lista)) (list (first lista) (second lista))
     :else nil))
 
 (defn revisar-lae [matriz]
@@ -551,11 +550,6 @@
 ; (b 7)
 
 
-(defn esError-amb [lista]
-  (cond
-    (and (seq? lista) (> (count lista) 0) (or (= '*error* (first lista)) (= "*error*" (first lista)))) true
-    :else nil))
-
 (defn index-of [e coll] (first (keep-indexed #(if (= e (toLowerSiSePuede %2)) (toLowerSiSePuede %1)) coll)))
 
 (defn reemplazarValor [lista clave valor]
@@ -568,9 +562,9 @@
     ;; "Devuelve un ambiente actualizado con una clave (nombre de la variable o funcion) y su valor. 
     ;; Si el valor es un error, el ambiente no se modifica. De lo contrario, se le carga o reemplaza el valor."
   (cond
-    (= (count lista) 0) (list clave valor)
-    (esError-amb valor) lista
-    (not (= (index-of clave lista) nil)) (reemplazarValor lista clave valor)
+    (empty? lista) (list clave valor)
+    (error? valor) lista
+    (not (error? (buscar clave lista))) (reemplazarValor lista clave valor)
     :else (concat lista (list clave valor))))
 
 
@@ -580,14 +574,25 @@
 ; (*error* unbound-symbol f)
 
 
-(defn buscar [clave lista]
-  ;; "Busca una clave en un ambiente (una lista con claves en las posiciones impares [1, 3, 5...] y valores en las pares [2, 4, 6...]
-  ;;  y devuelve el valor asociado. Devuelve un mensaje de error si no la encuentra."
+;; (defn buscar [clave lista]
+;;   ;; "Busca una clave en un ambiente (una lista con claves en las posiciones impares [1, 3, 5...] y valores en las pares [2, 4, 6...]
+;;   ;;  y devuelve el valor asociado. Devuelve un mensaje de error si no la encuentra."
+;;   (cond
+;;     (not (seq? lista)) (list '*error* 'unbound-symbol clave)
+;;     (= (count lista) 0) (list '*error* 'unbound-symbol clave)
+;;     (= clave (first lista)) (second lista)
+;;     :else (buscar clave (rest (rest lista)))))
+
+
+(defn get_clave [clave amb]
+  (get (zipmap (take-nth 2 amb) (take-nth 2 (rest amb))) clave (list '*error* 'unbound-symbol clave)))
+
+(defn buscar [clave amb]
   (cond
-    (not (seq? lista)) (list '*error* 'unbound-symbol clave)
-    (= (count lista) 0) (list '*error* 'unbound-symbol clave)
-    (= clave (first lista)) (second lista)
-    :else (buscar clave (rest (rest lista)))))
+    (not (symbol? clave)) clave
+    (not (error? (get_clave (toLowerSiSePuede clave) amb))) (get_clave (toLowerSiSePuede clave) amb)
+    (not (error? (get_clave clave amb))) (get_clave clave amb)
+    :else (get_clave (toLowerSiSePuede clave) amb)))
 
 ; user=> (fnc-append '( (1 2) ))
 ; (*error* too-few-args)
@@ -607,6 +612,8 @@
 ; nil
 ; user=> (fnc-append '(() ()))
 ; nil
+
+
 (defn fnc-append [matriz]
     ;; "Devuelve el resultado de fusionar 2 sublistas."
   (cond
@@ -627,13 +634,13 @@
 ; (*error* too-many-args)
 
 
-(defn fnc-env [lista1 lista2 lista3]
+(defn fnc-env [lista1 global local]
     ;; "Devuelve la fusion de los ambientes global y local."
   (cond
     (not (seq? lista1)) (list '*error* 'list 'expected lista1)
-    (not (seq? lista2)) (list '*error* 'list 'expected lista2)
-    (not (seq? lista3)) (list '*error* 'list 'expected lista3)
-    (= (count lista1) 0) (concat lista2 lista3)
+    (not (seq? global)) (list '*error* 'list 'expected global)
+    (not (seq? local)) (list '*error* 'list 'expected local)
+    (empty? lista1) (concat global local)
     :else (list '*error* 'too-many-args)))
 
 
@@ -664,13 +671,8 @@
   (cond
     (<= (count lista) 1) (list '*error* 'too-few-args)
     (> (count lista) 2) (list '*error* 'too-many-args)
-    (and (number? (first lista)) (number? (second lista))) (if (= (first lista) (second lista)) 't nil)
-    (and (string? (first lista)) (string? (second lista))) (if (= (clojure.string/lower-case (first lista))
-                                                                  (clojure.string/lower-case (second lista))) 't nil)
-    (and (symbol? (first lista)) (symbol? (second lista))) (if (= (clojure.string/lower-case (first lista))
-                                                                  (clojure.string/lower-case (second lista))) 't nil)
-    (and (nil? (first lista)) (nil? (second lista))) 't
     (or (and (nil? (first lista)) (= (second lista) 'NIL)) (and (nil? (second lista)) (= (first lista) 'NIL))) 't
+    (= (toLowerSiSePuede (first lista)) (toLowerSiSePuede (second lista))) 't
     :else nil))
 
 ; user=> (fnc-read ())
@@ -754,7 +756,7 @@
   (let [listaErrores (filter isNotNil? (map checkIsNumber lista))]
     (cond
       (<= (count lista) 1) (list '*error* 'too-few-args)
-      (> (count listaErrores) 0) (first listaErrores)
+      (not (empty? listaErrores)) (first listaErrores)
       :else (reduce + lista))))
 
 
@@ -782,7 +784,7 @@
     (cond
       (= (count lista) 0) (list '*error* 'too-few-args)
       (and (= (count lista) 1) (number? (first lista))) (- 0 (first lista))
-      (> (count listaErrores) 0) (first listaErrores)
+      (not (empty? listaErrores)) (first listaErrores)
       :else (reduce - lista))))
 
 
@@ -806,15 +808,13 @@
 
 (defn fnc-lt [lista]
   ;; "Devuelve t si el primer numero es menor que el segundo; si no, nil."
-  (cond
-    (< (count lista) 2) (list '*error* 'too-few-args)
-    (> (count lista) 2) (list '*error* 'too-many-args)
-    (number? (first lista)) (cond
-                              (number? (second lista)) (cond
-                                                         (< (first lista) (second lista)) 't
-                                                         :else nil)
-                              :else (list '*error* 'number-expected (second lista)))
-    :else (list '*error* 'number-expected (first lista))))
+  (let [listaErrores (filter isNotNil? (map checkIsNumber lista))]
+    (cond
+      (< (count lista) 2) (list '*error* 'too-few-args)
+      (> (count lista) 2) (list '*error* 'too-many-args)
+      (not (empty? listaErrores)) (first listaErrores)
+      (< (first lista) (second lista)) 't
+      :else nil)))
 
 
 ; user=> (fnc-gt ())
@@ -837,15 +837,13 @@
 
 (defn fnc-gt [lista]
   ;; "Devuelve t si el primer numero es mayor que el segundo; si no, nil."
-  (cond
-    (< (count lista) 2) (list '*error* 'too-few-args)
-    (> (count lista) 2) (list '*error* 'too-many-args)
-    (number? (first lista)) (cond
-                              (number? (second lista)) (cond
-                                                         (> (first lista) (second lista)) 't
-                                                         :else nil)
-                              :else (list '*error* 'number-expected (second lista)))
-    :else (list '*error* 'number-expected (first lista))))
+  (let [listaErrores (filter isNotNil? (map checkIsNumber lista))]
+    (cond
+      (< (count lista) 2) (list '*error* 'too-few-args)
+      (> (count lista) 2) (list '*error* 'too-many-args)
+      (not (empty? listaErrores)) (first listaErrores)
+      (> (first lista) (second lista)) 't
+      :else nil)))
 
 
 ; user=> (fnc-ge ())
@@ -868,15 +866,13 @@
 
 (defn fnc-ge [lista]
   ;; "Devuelve t si el primer numero es mayor o igual que el segundo; si no, nil."
-  (cond
-    (< (count lista) 2) (list '*error* 'too-few-args)
-    (> (count lista) 2) (list '*error* 'too-many-args)
-    (number? (first lista)) (cond
-                              (number? (second lista)) (cond
-                                                         (>= (first lista) (second lista)) 't
-                                                         :else nil)
-                              :else (list '*error* 'number-expected (second lista)))
-    :else (list '*error* 'number-expected (first lista))))
+  (let [listaErrores (filter isNotNil? (map checkIsNumber lista))]
+    (cond
+      (< (count lista) 2) (list '*error* 'too-few-args)
+      (> (count lista) 2) (list '*error* 'too-many-args)
+      (not (empty? listaErrores)) (first listaErrores)
+      (>= (first lista) (second lista)) 't
+      :else nil)))
 
 
 ; user=> (fnc-reverse ())
@@ -918,16 +914,11 @@
 ; ((*error* unbound-symbol n) (v 1 w 3 x 6))
 
 
-(defn evaluar-escalar [e lista1 lista2]
-  ;; "Evalua una expresion escalar consultando, si corresponde, los ambientes local y global. Devuelve una lista con el resultado y un ambiente."
-  (let [index1 (index-of (symbol (clojure.string/lower-case e)) lista1)
-        index2 (index-of (symbol (clojure.string/lower-case e)) lista2)]
-    (cond
-      (and (nil? index1) (nil? index2) (not (symbol? e))) (list e lista1)
-      (and (nil? index1) (nil? index2)) (list (list '*error* 'unbound-symbol e) lista1)
-      (and (not (nil? index1)) (not (nil? index2))) (list (nth lista2 (inc index2)) lista1)
-      (nil? index2) (list (nth lista1 (inc index1)) lista1)
-      :else (list (nth lista2 (inc index2)) lista1))))
+(defn evaluar-escalar [lae global local]
+  (cond
+    (not (symbol? lae)) (cons lae (list global))
+    (not (error? (buscar lae local))) (cons (buscar lae local) (list global))
+    :else (cons (buscar lae global) (list global))))
 
 
 ; user=> (evaluar-de '(de f (x)) '(x 1))
@@ -1077,22 +1068,23 @@
     (number? (first lista)) (first lista)
     :else (getNumero (rest lista))))
 
-(defn n-params-or [params lista1 lista2]
-  (cond
-    (not (nil? (getNumero params))) (list (getNumero params) lista1)
-    (pertenece? lista1 (first params)) (list (nth lista1 (inc (index-of (first params) lista1))) lista1)
-    (pertenece? lista2 (first params)) (list (nth lista2 (inc (index-of (first params) lista2))) lista1)
-    (number? (first params)) (list (first params) lista1)
-    (> (count params) 1) (n-params-or (rest params) lista1 lista2)
-    :else (list (list '*error* 'unbound-symbol (first params)) lista1)))
+(defn n-params-or [params global local]
+  (let [enGlobal (buscar (first params) global)
+        enLocal (buscar (first params) local)]
+    (cond
+      (not (nil? (getNumero params))) (list (getNumero params) global)
+      (not (error? enGlobal)) (list enGlobal global)
+      (not (error? enLocal)) (list enLocal global)
+      (number? (first params)) (list (first params) global)
+      (> (count params) 1) (n-params-or (rest params) global local)
+      :else (list (list '*error* 'unbound-symbol (first params)) global))))
 
-(defn evaluar-or [condicion lista1 lista2]
+(defn evaluar-or [condicion global local]
   ;; "Evalua una forma 'or'. Devuelve una lista con el resultado y un ambiente."
   (cond
-    (= (count condicion) 1) (list nil lista1)
-    (and (seq? (second condicion)) (= (first (second (second condicion))) 'setq)) (evaluar (second (second condicion)) lista1 lista2)
-    (>= (count condicion) 2) (n-params-or (rest condicion) lista1 lista2)
-    :else true))
+    (= (count condicion) 1) (list nil global)
+    (seq? (second condicion)) (evaluar (second (second condicion)) global local)
+    :else (n-params-or (rest condicion) global local)))
 
 
 ; user=> (evaluar-setq '(setq) '(nil nil t t + add w 5 x 4) '(x 1 y nil z 3))

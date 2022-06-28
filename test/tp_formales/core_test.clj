@@ -170,7 +170,7 @@
 (deftest revisar-fnc-*error*-too-few-args
   (testing "Controlar (*error* too-few-args)"
     (is
-     (= (revisar-fnc '('*error* 'too-few-args)) ('*error* 'too-few-args)))))
+     (= (revisar-fnc (list '*error* 'too-few-args)) (list '*error* 'too-few-args)))))
 
 (deftest revisar-fnc-too-few-args
   (testing "Controlar '(too-few-args)"
@@ -210,12 +210,12 @@
 (deftest revisar-lae-un-error
   (testing "Controlar '(1 (*error* too-few-args) 3)"
     (is
-     (= (revisar-lae '(1 (*error* too-few-args) 3)) '(*error* too-few-args)))))
+     (= (revisar-lae '(1 (*error* too-few-args) 3)) (list '*error* 'too-few-args)))))
 
 (deftest revisar-lae-varios-errores
   (testing "Controlar '(1 (*error* too-few-args) (*error* too-many-args) 3)"
     (is
-     (= (revisar-lae '(1 (*error* too-few-args) (*error* too-many-args) 3)) '(*error* too-few-args)))))
+     (= (revisar-lae '(1 (*error* too-few-args) (*error* too-many-args) 3)) (list '*error* 'too-few-args)))))
 
 (deftest actualizar-amb-cargar
   (testing "Controlar '(a 1 b 2 c 3) 'd 4"
