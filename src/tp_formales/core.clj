@@ -462,7 +462,7 @@
     (and (number? elem1) (number? elem2)) (= elem1 elem2)
     (and (string? elem1) (string? elem2)) (= elem1 elem2)
     (and (nil? elem1) (nil? elem2)) true
-    (and (symbol? elem1) (symbol? elem2)) (= (clojure.string/lower-case elem1) (clojure.string/lower-case elem2))
+    (and (symbol? elem1) (symbol? elem2)) (= (toLowerSiSePuede elem1) (toLowerSiSePuede elem2))
     (or (and (seq? elem1) (empty? elem1) (= elem2 'NIL)) (and (seq? elem2) (empty? elem2) (= elem1 'NIL))) true
     (and (seq? elem1) (seq? elem2)) (= (map toLowerSiSePuede elem1) (map toLowerSiSePuede elem2))
     :else false))
@@ -577,16 +577,6 @@
 ; 3
 ; user=> (buscar 'f '(a 1 b 2 c 3 d 4 e 5))
 ; (*error* unbound-symbol f)
-
-
-;; (defn buscar [clave lista]
-;;   ;; "Busca una clave en un ambiente (una lista con claves en las posiciones impares [1, 3, 5...] y valores en las pares [2, 4, 6...]
-;;   ;;  y devuelve el valor asociado. Devuelve un mensaje de error si no la encuentra."
-;;   (cond
-;;     (not (seq? lista)) (list '*error* 'unbound-symbol clave)
-;;     (= (count lista) 0) (list '*error* 'unbound-symbol clave)
-;;     (= clave (first lista)) (second lista)
-;;     :else (buscar clave (rest (rest lista)))))
 
 
 (defn get_clave [clave amb]
@@ -1064,30 +1054,42 @@
 ; (nil (nil nil t t w 5 x 4))
 
 
-(defn getNumero [lista]
-  (cond
-    (= (count lista) 0) nil
-    (number? (first lista)) (first lista)
-    :else (getNumero (rest lista))))
+;; (defn getNumero [lista]
+;;   (cond
+;;     (= (count lista) 0) nil
+;;     (number? (first lista)) (first lista)
+;;     :else (getNumero (rest lista))))
 
-(defn n-params-or [params global local]
-  (let [enGlobal (buscar (first params) global)
-        enLocal (buscar (first params) local)]
-    (cond
-      (seq? (first params)) (n-params-or (concat (list (first (evaluar (second (first params)) global local))) (rest params))
-                                         (second (evaluar (second (first params)) global local)) local)
-      (not (nil? (getNumero params))) (list (getNumero params) global)
-      (number? (first params)) (list (first params) global)
-      (not (error? enGlobal)) (list enGlobal global)
-      (not (error? enLocal)) (list enLocal global)
-      (> (count params) 1) (n-params-or (rest params) global local)
-      :else (list (list '*error* 'unbound-symbol (first params)) global))))
+;; (defn n-params-or [params global local]
+;;   (let [enGlobal (buscar (first params) global)
+;;         enLocal (buscar (first params) local)]
+;;     (cond
+;;       (seq? (first params)) (n-params-or (concat (list (first (evaluar (second (first params)) global local))) (rest params))
+;;                                          (second (evaluar (second (first params)) global local)) local)
+;;       (not (nil? (getNumero params))) (list (getNumero params) global)
+;;       (number? (first params)) (list (first params) global)
+;;       (not (error? enGlobal)) (list enGlobal global)
+;;       (not (error? enLocal)) (list enLocal global)
+;;       (> (count params) 1) (n-params-or (rest params) global local)
+;;       :else (list (list '*error* 'unbound-symbol (first params)) global))))
 
-(defn evaluar-or [condicion global local]
+;; (defn evaluar-or [condicion global local]
+;;   ;; "Evalua una forma 'or'. Devuelve una lista con el resultado y un ambiente."
+;;   (cond
+;;     (= (count condicion) 1) (list nil global)
+;;     :else (n-params-or (rest condicion) global local)))
+
+
+(defn evaluar-or [expre amb-global amb-local]
   ;; "Evalua una forma 'or'. Devuelve una lista con el resultado y un ambiente."
-  (cond
-    (= (count condicion) 1) (list nil global)
-    :else (n-params-or (rest condicion) global local)))
+  (if (or (empty? (rest expre)) (nil? (rest expre)))
+    (list nil amb-global)
+    (let [evaluada (evaluar (second expre) amb-global amb-local)]
+      (cond
+        (error? (first evaluada)) evaluada
+        (igual? (nnext expre) 'nil) evaluada
+        (igual? (first evaluada) nil) (evaluar (list 'or (first (nnext expre))) (second evaluada) amb-local)
+        :else (list (first evaluada) (second evaluada))))))
 
 
 ; user=> (evaluar-setq '(setq) '(nil nil t t + add w 5 x 4) '(x 1 y nil z 3))
