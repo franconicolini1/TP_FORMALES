@@ -298,6 +298,7 @@
   [lae]
   (let [ari (controlar-aridad lae 2)]
     (cond
+      (and (nil? (first lae)) (= (second lae) ())) ()
       (seq? ari) ari
       (or (seq? (second lae)) (igual? (second lae) nil)) (cons (first lae) (second lae))
       :else (list '*error* 'not-implemented))))
