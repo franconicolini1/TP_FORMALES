@@ -949,7 +949,7 @@
   ;; "Evalua una forma 'de'. Devuelve una lista con el resultado y un ambiente actualizado con la definicion."
   (cond
     (<= (count lista1) 2) (list (list '*error* 'list 'expected nil) lista2)
-    (nil? (second lista1)) (list (list '*error* 'cannot-set nil) lista2)
+    (igual? nil (second lista1)) (list (list '*error* 'cannot-set nil) lista2)
     (not (seq? (nth lista1 2))) (list (list '*error* 'list 'expected (nth lista1 2)) lista2)
     (not (symbol? (second lista1))) (list (list '*error* 'symbol 'expected (second lista1)) lista2)
     :else (list (second lista1) (concat (concat lista2 (list (second lista1))) (list (concat (list 'lambda) (getRest lista1)))))))
@@ -1004,7 +1004,7 @@
   (let [condEvaluada (evaluar condicion global local)]
     (cond
       (error? (first condEvaluada)) condEvaluada
-      (not (nil? (first condEvaluada))) (evaluar evSiVerdadero global local)
+      (not (igual? nil (first condEvaluada))) (evaluar evSiVerdadero global local)
       (seq? evSiFalso) (evaluar-lista-params (reverse evSiFalso) global local)
       :else (evaluar evSiFalso global local))))
 
@@ -1042,7 +1042,7 @@
 
 (defn evaluar-or [expre global local]
   ;; "Evalua una forma 'or'. Devuelve una lista con el resultado y un ambiente."
-  (if (or (empty? (rest expre)) (nil? (rest expre)))
+  (if (or (empty? (rest expre)) (igual? (rest expre) nil))
     (list nil global)
     (let [ev (evaluar (second expre) global local)]
       (cond

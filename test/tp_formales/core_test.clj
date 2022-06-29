@@ -325,7 +325,27 @@
 (deftest fnc-equal-nil-y-NIL
   (testing "Controlar '(nil NIL)"
     (is
-     (= (fnc-equal '(nil NIL)) 't))))
+     (= (fnc-equal (list nil 'NIL)) 't))))
+
+(deftest fnc-equal-NIL-y-nil
+  (testing "Controlar '(nil NIL)"
+    (is
+     (= (fnc-equal (list 'NIL nil)) 't))))
+
+(deftest fnc-equal-NIL-y-NIL
+  (testing "Controlar '(nil NIL)"
+    (is
+     (= (fnc-equal (list 'NIL 'NIL)) 't))))
+
+(deftest fnc-equal-nil-y-nil
+  (testing "Controlar '(nil NIL)"
+    (is
+     (= (fnc-equal (list nil nil)) 't))))
+
+(deftest fnc-equal-nils2
+  (testing "Controlar '(nil NIL)"
+    (is
+     (= (fnc-equal (list 'nil nil)) 't))))
 
 (deftest fnc-equal-numeros-diferentes
   (testing "Controlar '(1 2)"
