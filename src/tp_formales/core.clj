@@ -1044,11 +1044,11 @@
 (defn evaluar-or [expre global local]
   ;; "Evalua una forma 'or'. Devuelve una lista con el resultado y un ambiente."
   (cond
-    (or (empty? (rest expre)) (igual? (rest expre) nil)) (list nil global)
+    (or (= (count expre) 1) (igual? (rest expre) nil)) (list nil global)
     :else (let [ev (evaluar (second expre) global local)]
             (cond
               (error? (first ev)) ev
-              (igual? (nnext expre) 'nil) ev
+              (igual? (nnext expre) nil) ev
               (igual? (first ev) nil) (evaluar (list 'or (first (nnext expre))) (second ev) local)
               :else (list (first ev) (second ev))))))
 
