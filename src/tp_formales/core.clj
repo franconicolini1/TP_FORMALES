@@ -1007,9 +1007,9 @@
       (seq? evSiFalso) (evaluar-lista-params (reverse evSiFalso) global local)
       :else (evaluar evSiFalso global local))))
 
-(defn evaluar-if [expre global local]
+(defn evaluar-if [condicion global local]
   ;; "Evalua una forma 'if'. Devuelve una lista con el resultado y un ambiente eventualmente modificado."
-  (evaluar-if-aux (second expre) (first (nnext expre)) (next (nnext expre)) global local))
+  (evaluar-if-aux (second condicion) (first (nnext condicion)) (next (nnext condicion)) global local)) ;; README: NEXT === SECOND ?
 
 ; user=> (evaluar-or '(or) '(nil nil t t w 5 x 4) '(x 1 y nil z 3))
 ; (nil (nil nil t t w 5 x 4))
