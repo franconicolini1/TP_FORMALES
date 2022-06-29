@@ -581,6 +581,7 @@
 
 
 (defn get_clave [clave amb]
+  ;; Genera diccionario con clave y valor que hay en el ambiente.
   (let [amb-aux (map toLowerSiSePuede amb)]
     (get (zipmap (take-nth 2 amb-aux) (take-nth 2 (rest amb-aux))) clave (list '*error* 'unbound-symbol clave))))
 
@@ -907,11 +908,11 @@
 ; ((*error* unbound-symbol n) (v 1 w 3 x 6))
 
 
-(defn evaluar-escalar [lae global local]
+(defn evaluar-escalar [lista global local]
   (cond
-    (not (symbol? lae)) (cons lae (list global))
-    (not (error? (buscar lae local))) (cons (buscar lae local) (list global))
-    :else (cons (buscar lae global) (list global))))
+    (not (symbol? lista)) (concat (list lista) (list global))
+    (not (error? (buscar lista local))) (concat (list (buscar lista local)) (list global))
+    :else (concat (list (buscar lista global)) (list global))))
 
 
 ; user=> (evaluar-de '(de f (x)) '(x 1))
@@ -1010,7 +1011,7 @@
 
 (defn evaluar-if [condicion global local]
   ;; "Evalua una forma 'if'. Devuelve una lista con el resultado y un ambiente eventualmente modificado."
-  (evaluar-if-aux (second condicion) (first (nnext condicion)) (next (nnext condicion)) global local)) ;; README: NEXT === SECOND ?
+  (evaluar-if-aux (second condicion) (first (nnext condicion)) (next (nnext condicion)) global local))
 
 ; user=> (evaluar-or '(or) '(nil nil t t w 5 x 4) '(x 1 y nil z 3))
 ; (nil (nil nil t t w 5 x 4))
@@ -1042,14 +1043,14 @@
 
 (defn evaluar-or [expre global local]
   ;; "Evalua una forma 'or'. Devuelve una lista con el resultado y un ambiente."
-  (if (or (empty? (rest expre)) (igual? (rest expre) nil))
-    (list nil global)
-    (let [ev (evaluar (second expre) global local)]
-      (cond
-        (error? (first ev)) ev
-        (igual? (nnext expre) 'nil) ev
-        (igual? (first ev) nil) (evaluar (list 'or (first (nnext expre))) (second ev) local)
-        :else (list (first ev) (second ev))))))
+  (cond
+    (or (empty? (rest expre)) (igual? (rest expre) nil)) (list nil global)
+    :else (let [ev (evaluar (second expre) global local)]
+            (cond
+              (error? (first ev)) ev
+              (igual? (nnext expre) 'nil) ev
+              (igual? (first ev) nil) (evaluar (list 'or (first (nnext expre))) (second ev) local)
+              :else (list (first ev) (second ev))))))
 
 
 ; user=> (evaluar-setq '(setq) '(nil nil t t + add w 5 x 4) '(x 1 y nil z 3))
