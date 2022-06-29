@@ -1054,42 +1054,16 @@
 ; (nil (nil nil t t w 5 x 4))
 
 
-;; (defn getNumero [lista]
-;;   (cond
-;;     (= (count lista) 0) nil
-;;     (number? (first lista)) (first lista)
-;;     :else (getNumero (rest lista))))
-
-;; (defn n-params-or [params global local]
-;;   (let [enGlobal (buscar (first params) global)
-;;         enLocal (buscar (first params) local)]
-;;     (cond
-;;       (seq? (first params)) (n-params-or (concat (list (first (evaluar (second (first params)) global local))) (rest params))
-;;                                          (second (evaluar (second (first params)) global local)) local)
-;;       (not (nil? (getNumero params))) (list (getNumero params) global)
-;;       (number? (first params)) (list (first params) global)
-;;       (not (error? enGlobal)) (list enGlobal global)
-;;       (not (error? enLocal)) (list enLocal global)
-;;       (> (count params) 1) (n-params-or (rest params) global local)
-;;       :else (list (list '*error* 'unbound-symbol (first params)) global))))
-
-;; (defn evaluar-or [condicion global local]
-;;   ;; "Evalua una forma 'or'. Devuelve una lista con el resultado y un ambiente."
-;;   (cond
-;;     (= (count condicion) 1) (list nil global)
-;;     :else (n-params-or (rest condicion) global local)))
-
-
-(defn evaluar-or [expre amb-global amb-local]
+(defn evaluar-or [expre global local]
   ;; "Evalua una forma 'or'. Devuelve una lista con el resultado y un ambiente."
   (if (or (empty? (rest expre)) (nil? (rest expre)))
-    (list nil amb-global)
-    (let [evaluada (evaluar (second expre) amb-global amb-local)]
+    (list nil global)
+    (let [ev (evaluar (second expre) global local)]
       (cond
-        (error? (first evaluada)) evaluada
-        (igual? (nnext expre) 'nil) evaluada
-        (igual? (first evaluada) nil) (evaluar (list 'or (first (nnext expre))) (second evaluada) amb-local)
-        :else (list (first evaluada) (second evaluada))))))
+        (error? (first ev)) ev
+        (igual? (nnext expre) 'nil) ev
+        (igual? (first ev) nil) (evaluar (list 'or (first (nnext expre))) (second ev) local)
+        :else (list (first ev) (second ev))))))
 
 
 ; user=> (evaluar-setq '(setq) '(nil nil t t + add w 5 x 4) '(x 1 y nil z 3))
