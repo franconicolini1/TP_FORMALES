@@ -989,42 +989,63 @@
 ; (8 (gt gt nil nil t t v 1 w 3 x 6 m 8))
 
 
-(defn pertenece? [lista elemento]
-  ;; "Devuelve true si el elemento pertenece a la lista."
-  (cond
-    (= (count lista) 0) false
-    (= elemento (first lista)) true
-    :else (pertenece? (rest lista) elemento)))
+;; (defn pertenece? [lista elemento]
+;;   ;; "Devuelve true si el elemento pertenece a la lista."
+;;   (cond
+;;     (= (count lista) 0) false
+;;     (= elemento (first lista)) true
+;;     :else (pertenece? (rest lista) elemento)))
 
-(defn obtener-n [lista n]
-  (cond
-    (<= (count lista) n) nil
-    :else (nth lista n)))
+;; (defn obtener-n [lista n]
+;;   (cond
+;;     (<= (count lista) n) nil
+;;     :else (nth lista n)))
 
-(defn evaluar-if [condicion global local]
-      ;; "Evalua una forma 'if'. Devuelve una lista con el resultado y un ambiente eventualmente modificado."
-  (let [seg (obtener-n condicion 1)
-        ter (obtener-n condicion 2)
-        cuar (obtener-n condicion 3)
-        ult (obtener-n condicion (dec (count condicion)))]
+;; (defn evaluar-if [condicion global local]
+;;       ;; "Evalua una forma 'if'. Devuelve una lista con el resultado y un ambiente eventualmente modificado."
+;;   (let [seg (obtener-n condicion 1)
+;;         ter (obtener-n condicion 2)
+;;         cuar (obtener-n condicion 3)
+;;         ult (obtener-n condicion (dec (count condicion)))]
+;;     (cond
+;;       (nil? ter) (list nil global)
+;;       (seq? seg) (evaluar-if (concat (list 'if) (concat (list (first (evaluar seg global local))) (rest (rest condicion)))) global local)
+;;       (seq? ter) (evaluar-if (concat (list 'if) (concat (list (first (evaluar ter global local))) (rest (rest (rest condicion))))) global local)
+;;       (seq? cuar) (evaluar-if (concat (list 'if) (concat (list (first (evaluar cuar global local))) (rest (rest (rest (rest condicion)))))) global local)
+;;       (and (>= (count condicion) 4) (nil? seg) (pertenece? local ult)) (list (nth local (inc (index-of ult local))) global)
+;;       (and (>= (count condicion) 4) (nil? seg) (pertenece? global ult)) (list (nth global (inc (index-of ult global))) global)
+;;       (nil? seg) (list cuar global)
+;;       (number? seg) (list ter global)
+;;       (and (not (nil? seg)) (or (pertenece? local seg) (pertenece? global seg)) (number? ter)) (list ter global)
+;;       (and (not (nil? seg)) (number? ter)) (list (list '*error* 'unbound-symbol seg) global)
+;;       (and (nil? seg) (number? cuar)) (list cuar global)
+;;       (and (not (nil? seg)) (not (nil? ter)) (pertenece? local ter)) (list (nth local (inc (index-of ter local))) global)
+;;       (and (not (nil? seg)) (not (nil? ter)) (pertenece? global ter)) (list (nth global (inc (index-of ter global))) global)
+;;       (and (not (nil? seg)) (not (pertenece? local ter)) (not (pertenece? global ter))) (list (list '*error* 'unbound-symbol ter) global)
+;;       (and (not (pertenece? global cuar)) (not (pertenece? local cuar))) (list (list '*error* 'unbound-symbol cuar) global)
+;;       :else (list (list '*error* 'unbound-symbol seg) global))))
+
+(defn _evaluar-lista [si_falso global local]
+  (let [valorLocal (buscar (first si_falso) local)
+        valorGlobal (buscar (first si_falso) global)]
     (cond
-      (nil? ter) (list nil global)
-      (seq? seg) (evaluar-if (concat (list 'if) (concat (list (first (evaluar seg global local))) (rest (rest condicion)))) global local)
-      (seq? ter) (evaluar-if (concat (list 'if) (concat (list (first (evaluar ter global local))) (rest (rest (rest condicion))))) global local)
-      (seq? cuar) (evaluar-if (concat (list 'if) (concat (list (first (evaluar cuar global local))) (rest (rest (rest (rest condicion)))))) global local)
-      (and (>= (count condicion) 4) (nil? seg) (pertenece? local ult)) (list (nth local (inc (index-of ult local))) global)
-      (and (>= (count condicion) 4) (nil? seg) (pertenece? global ult)) (list (nth global (inc (index-of ult global))) global)
-      (nil? seg) (list cuar global)
-      (number? seg) (list ter global)
-      (and (not (nil? seg)) (or (pertenece? local seg) (pertenece? global seg)) (number? ter)) (list ter global)
-      (and (not (nil? seg)) (number? ter)) (list (list '*error* 'unbound-symbol seg) global)
-      (and (nil? seg) (number? cuar)) (list cuar global)
-      (and (not (nil? seg)) (not (nil? ter)) (pertenece? local ter)) (list (nth local (inc (index-of ter local))) global)
-      (and (not (nil? seg)) (not (nil? ter)) (pertenece? global ter)) (list (nth global (inc (index-of ter global))) global)
-      (and (not (nil? seg)) (not (pertenece? local ter)) (not (pertenece? global ter))) (list (list '*error* 'unbound-symbol ter) global)
-      (and (not (pertenece? global cuar)) (not (pertenece? local cuar))) (list (list '*error* 'unbound-symbol cuar) global)
-      :else (list (list '*error* 'unbound-symbol seg) global))))
+      (seq? (first si_falso)) (list (first (evaluar (first si_falso) global local)) global)
+      (number? (first si_falso)) (list (first si_falso) global)
+      (not (error? valorLocal)) (list valorLocal global)
+      (not (error? valorGlobal)) (list valorGlobal global)
+      :else (_evaluar-lista (rest si_falso) global local))))
 
+(defn _if [condicion si_verdadero si_falso global local]
+  (let [evaluada (evaluar condicion global local)]
+    (cond
+      (error? (first evaluada)) evaluada
+      (not (igual? 'nil (first evaluada))) (evaluar si_verdadero global local)
+      (seq? si_falso) (_evaluar-lista (reverse si_falso) global local)
+      :else (evaluar si_falso global local))))
+
+(defn evaluar-if [expre global local]
+  ;; "Evalua una forma 'if'. Devuelve una lista con el resultado y un ambiente eventualmente modificado."
+  (_if (second expre) (first (nnext expre)) (next (nnext expre)) global local))
 
 ; user=> (evaluar-or '(or) '(nil nil t t w 5 x 4) '(x 1 y nil z 3))
 ; (nil (nil nil t t w 5 x 4))

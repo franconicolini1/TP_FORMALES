@@ -830,7 +830,7 @@
 (deftest evaluar-if-nil-a-numero-8
   (testing "Controlar '(if (gt 0 2) a (setq m 8)) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z 'hola')"
     (is
-     (= (evaluar-if '(if (gt 0 2) a (setq m 8)) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list nil (list 'gt 'gt nil nil 't 't 'v 1 'w 3 'x 6))))))
+     (= (evaluar-if '(if (gt 0 2) a (setq m 8)) '(gt gt nil nil t t v 1 w 3 x 6) '(x 5 y 11 z "hola")) (list 8 (list 'gt 'gt nil nil 't 't 'v 1 'w 3 'x 6))))))
 
 (deftest evaluar-or-sin-params
   (testing "Controlar '(or) '(nil nil t t w 5 x 4) '(x 1 y nil z 3)"
